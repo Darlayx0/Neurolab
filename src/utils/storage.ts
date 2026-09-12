@@ -38,6 +38,7 @@ export const INITIAL_RECORDS: BestRecords = {
   switching: null,
   temporal: null,
   flanker: null,
+  chimp: null,
 };
 
 export function getStoredRecords(): BestRecords {
@@ -59,6 +60,7 @@ export function getStoredRecords(): BestRecords {
       switching: typeof parsed.switching === 'number' ? parsed.switching : null,
       temporal: typeof parsed.temporal === 'number' ? parsed.temporal : null,
       flanker: typeof parsed.flanker === 'number' ? parsed.flanker : null,
+      chimp: typeof parsed.chimp === 'number' ? parsed.chimp : null,
     };
 
     // Include composite keys

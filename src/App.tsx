@@ -15,6 +15,7 @@ import { ChromaticAnomalyMode } from './components/modes/ChromaticAnomalyMode';
 import { SwitchingMode } from './components/modes/SwitchingMode';
 import { TemporalMode } from './components/modes/TemporalMode';
 import { FlankerMode } from './components/modes/FlankerMode';
+import { ChimpMode } from './components/modes/ChimpMode';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<AppView>('menu');
@@ -153,6 +154,14 @@ export default function App() {
       {currentView === 'flanker' && (
         <FlankerMode
           bestRecord={records.flanker}
+          onRecordUpdated={reloadData}
+          onBackToMenu={handleBackToMenu}
+        />
+      )}
+
+      {currentView === 'chimp' && (
+        <ChimpMode
+          bestRecord={records.chimp}
           onRecordUpdated={reloadData}
           onBackToMenu={handleBackToMenu}
         />

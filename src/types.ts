@@ -1,6 +1,6 @@
 import type { ReactNode, MouseEvent } from 'react';
 
-export type ReflexMode = 'visual' | 'audio' | 'memory' | 'motor' | 'concentration' | 'digit_span' | 'nback' | 'matrix' | 'tracking' | 'chromatic' | 'switching' | 'temporal' | 'flanker';
+export type ReflexMode = 'visual' | 'audio' | 'memory' | 'motor' | 'concentration' | 'digit_span' | 'nback' | 'matrix' | 'tracking' | 'chromatic' | 'switching' | 'temporal' | 'flanker' | 'chimp';
 
 export type AppView = 'menu' | ReflexMode;
 
@@ -101,8 +101,20 @@ export interface BestRecords {
   switching: number | null; // min effective switch cost ms
   temporal: number | null; // min mean absolute deviation ms
   flanker: number | null; // max resilience index (0 - 100 points)
+  chimp: number | null; // max numbers memorized & completed
   [subModeKey: string]: number | null | undefined;
 }
+
+export interface ChimpTile {
+  id: number;
+  number: number; // 1, 2, 3...
+  cellIndex: number; // position on grid
+  isClicked: boolean;
+  isWrong: boolean;
+}
+
+export type ChimpPhase = 'idle' | 'countdown' | 'memorize' | 'recall' | 'round_success' | 'strike_review' | 'game_over';
+
 
 export type FlankerDirection = 'left' | 'right' | 'up' | 'down';
 export type FlankerRuleType = 'direct' | 'inverse';

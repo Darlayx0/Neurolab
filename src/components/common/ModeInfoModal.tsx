@@ -265,6 +265,24 @@ const MODE_GUIDES: Record<ReflexMode, GuideContent> = {
       'Bersiaplah menghadapi peningkatan tempo di 10 trial terakhir di mana bilah waktu menyusut sangat cepat.',
     ],
   },
+  chimp: {
+    scientificBasis:
+      'Terinspirasi dari eksperimen memori fotografis terkenal di Kyoto University oleh Prof. Tetsuro Matsuzawa dengan simpanse Ayumu (2007). Menguji kapasitas persepsi visual instan (eidetic working memory) di mana informasi spasial dipetakan dalam pecahan detik sebelum disaring oleh korteks prefrontal verbal.',
+    howToPlay: [
+      'Angka 1 sampai N akan muncul tersebar secara acak di papan petak spasial.',
+      'Amati dan rekam posisi seluruh angka dalam benak Anda. Angka akan tetap terlihat selama Anda belum menekan apa pun.',
+      'Segera setelah Anda menekan angka "1", SELURUH angka lain langsung tertutup menjadi ubin polos.',
+      'Ketuk sisa ubin yang tertutup tersebut sesuai urutan dari yang terkecil ke terbesar (2, 3, 4, ... N).',
+      'Setiap kali Anda berhasil menyelesaikan satu level, jumlah angka akan bertambah (+1) untuk meningkatkan tantangan spasial.',
+    ],
+    penaltyRule:
+      'Aturan 3 Nyawa (Strikes): Anda memiliki 3 kesempatan nyawa. Mengetuk ubin yang salah akan mengurangi 1 nyawa dan memperlihatkan letak angka yang sebenarnya sejenak. Permainan berakhir saat 3 nyawa habis.',
+    optimalTips: [
+      'Jangan terburu-buru menyentuh angka 1; gunakan 1-2 detik untuk mengambil snapshot mental pola geometris angka.',
+      'Kelompokkan angka menjadi bentuk pola geometris (misal: segitiga, garis melengkung, atau kluster terdekat).',
+      'Jaga ritme ketukan jari tetap santai dan percaya pada memori fotografis pertama Anda.',
+    ],
+  },
 };
 
 const MODE_ICON_MAP: Record<ReflexMode, React.ReactNode> = {
@@ -281,6 +299,7 @@ const MODE_ICON_MAP: Record<ReflexMode, React.ReactNode> = {
   switching: <ArrowLeftRight className="w-5 h-5 text-teal-600" />,
   temporal: <Timer className="w-5 h-5 text-emerald-600" />,
   flanker: <ShieldAlert className="w-5 h-5 text-amber-600" />,
+  chimp: <Sparkles className="w-5 h-5 text-amber-500" />,
 };
 
 export const ModeInfoModal: React.FC<ModeInfoModalProps> = ({

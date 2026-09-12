@@ -569,3 +569,81 @@ export function playNewRecordCelebration(): void {
   }
 }
 
+// Crisp ascending chime per sequential tap in Chimp Test
+export function playChimpTap(step = 1): void {
+  if (isSoundMuted) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  try {
+    const now = ctx.currentTime;
+    // Major scale scale notes starting from C5 (523.25 Hz)
+    const majorScaleIntervals = [0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 17, 19, 21, 23, 24];
+    const semitone = majorScaleIntervals[(step - 1) % majorScaleIntervals.length] + Math.floor((step - 1) / majorScaleIntervals.length) * 12;
+    const baseFreq = 523.25 * Math.pow(2, semitone / 12);
+
+    const osc = ctx.createOscillator();
+    const harmonic = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(baseFreq, now);
+
+    harmonic.type = 'triangle';
+    harmonic.frequency.setValueAtTime(baseFreq * 2, now);
+
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.18, now + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+
+    osc.connect(gain);
+    harmonic.connect(gain);
+    gain.connect(getMasterNode(ctx));
+
+    osc.start(now);
+    harmonic.start(now);
+    osc.stop(now + 0.18);
+    harmonic.stop(now + 0.18);
+  } catch {
+    // Silently handle
+  }
+}
+
+// Low dissonance thud when a strike occurs in Chimp Test
+export function playChimpStrike(): void {
+  if (isSoundMuted) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  try {
+    const now = ctx.currentTime;
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc1.type = 'sawtooth';
+    osc1.frequency.setValueAtTime(150, now);
+    osc1.frequency.exponentialRampToValueAtTime(60, now + 0.25);
+
+    // Minor second clash (dissonance)
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(158, now);
+    osc2.frequency.exponentialRampToValueAtTime(64, now + 0.25);
+
+    gain.gain.setValueAtTime(0.22, now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
+
+    osc1.connect(gain);
+    osc2.connect(gain);
+    gain.connect(getMasterNode(ctx));
+
+    osc1.start(now);
+    osc2.start(now);
+    osc1.stop(now + 0.3);
+    osc2.stop(now + 0.3);
+  } catch {
+    // Silently handle
+  }
+}
+
+

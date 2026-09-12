@@ -16,6 +16,7 @@ import {
   Activity,
   Trophy,
   ShieldAlert,
+  Sparkles,
 } from 'lucide-react';
 import { MODE_SUBMODES_MAP, getBestRecord } from '../utils/storage';
 import { evaluateScoreTier } from '../utils/tierSystem';
@@ -132,6 +133,18 @@ export const MainMenu: React.FC<MainMenuProps> = ({
       iconBg: 'bg-indigo-50/90 border-indigo-100',
       accentHover: 'hover:border-indigo-300/80',
       unit: 'Digit',
+    },
+    {
+      id: 'chimp',
+      title: 'Memori Simpanse',
+      category: 'memory',
+      categoryTag: 'EIDETIK',
+      categoryTagColor: 'text-amber-600 bg-amber-50 border-amber-200/80',
+      shortDescription: 'Memori fotografis seketika Ayumu',
+      icon: <Sparkles className="w-5 h-5 text-amber-500" />,
+      iconBg: 'bg-amber-50/90 border-amber-100',
+      accentHover: 'hover:border-amber-300/80',
+      unit: 'Angka',
     },
     {
       id: 'matrix',
