@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+@layer base {
+  html,
+  body {
+    background-color: #F8FAFC;
+    color: #0F172A;
+    min-height: 100%;
+    min-height: 100dvh;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply antialiased selection:bg-rose-500 selection:text-white font-sans;
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+}
+
+@keyframes nbackProgress {
+  0% { transform: scaleX(1); }
+  100% { transform: scaleX(0); }
+}
+
+@keyframes flankerJitter1 {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  25% { transform: translate3d(-2px, 1.5px, 0) rotate(-1deg); }
+  50% { transform: translate3d(2px, -2px, 0) rotate(1.5deg); }
+  75% { transform: translate3d(-1.5px, -1px, 0) rotate(-0.5deg); }
+}
+
+@keyframes flankerJitter2 {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  20% { transform: translate3d(2.5px, -1.5px, 0) rotate(1.2deg); }
+  45% { transform: translate3d(-2px, 2px, 0) rotate(-1.5deg); }
+  70% { transform: translate3d(1.5px, 1.5px, 0) rotate(0.8deg); }
+  90% { transform: translate3d(-1px, -2px, 0) rotate(-1deg); }
+}
+
+@keyframes flankerPulseFast {
+  0%, 100% { opacity: 0.95; filter: drop-shadow(0 0 2px rgba(148, 163, 184, 0.4)); }
+  35% { opacity: 0.35; filter: drop-shadow(0 0 8px rgba(148, 163, 184, 0.8)); }
+  70% { opacity: 0.85; filter: drop-shadow(0 0 0px transparent); }
+}
+
+@keyframes flankerPulseSlow {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 0.3; filter: drop-shadow(0 0 6px rgba(203, 213, 225, 0.9)); }
+}
+
+@keyframes flankerGlitchEcho {
+  0%, 90%, 100% { transform: scale(1); opacity: 0; }
+  92% { transform: scale(1.15) translate(-3px, 2px); opacity: 0.6; }
+  96% { transform: scale(0.95) translate(2px, -2px); opacity: 0.4; }
+}
+
+@keyframes flankerCountdownBar {
+  0% {
+    transform: scaleX(1);
+    background-color: #10B981;
+  }
+  50% {
+    background-color: #10B981;
+  }
+  75% {
+    background-color: #F59E0B;
+  }
+  90% {
+    background-color: #F43F5E;
+  }
+  100% {
+    transform: scaleX(0);
+    background-color: #E11D48;
+  }
+}
+
+@keyframes flankerBarRefill {
+  0% {
+    transform: scaleX(0);
+    background-color: #94A3B8;
+  }
+  100% {
+    transform: scaleX(1);
+    background-color: #10B981;
+  }
+}
+

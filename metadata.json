@@ -1,0 +1,8 @@
+{
+  "name": "Reflex Trainer",
+  "description": "Aplikasi pengujian dan pelatihan refleks neuromuskular komprehensif dengan 5 mode: reaksi visual, reaksi audio, memori spasial, koordinasi motorik, dan tantangan kecepatan Go/No-Go.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
