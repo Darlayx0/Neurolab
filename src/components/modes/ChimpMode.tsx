@@ -555,7 +555,10 @@ export const ChimpMode: React.FC<ChimpModeProps> = ({
       {/* Universal 3-2-1 Countdown Modal */}
       <UniversalCountdown
         isOpen={isCountdownOpen}
-        onFinished={handleCountdownFinished}
+        onComplete={handleCountdownFinished}
+        onCancel={() => setIsCountdownOpen(false)}
+        title="Memori Simpanse"
+        accentColor="amber"
       />
 
       {/* Mode Info & Scientific Standards Modal */}
