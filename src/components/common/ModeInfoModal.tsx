@@ -23,6 +23,7 @@ import {
   Sparkles,
   Info,
   Crown,
+  Boxes,
 } from 'lucide-react';
 import {
   ALL_MODE_TIER_STANDARDS,
@@ -97,6 +98,24 @@ const MODE_GUIDES: Record<ReflexMode, GuideContent> = {
     optimalTips: [
       'Hubungkan letak angka menjadi bentuk pola geometris (seperti garis diagonal, segitiga, atau huruf) di dalam benak Anda.',
       'Lafalkan angka terkecil hingga terbesar dalam urutan arah spasial (misal: kiri-atas ke kanan-bawah).',
+    ],
+  },
+  color_memory: {
+    scientificBasis:
+      'Paradigma pengikatan fitur visual (visual feature binding) menguji integrasi memori kerja visual korteks parietal posterior dan korteks visual ventral. Otak dituntut menyimpan keterikatan antara rona warna spesifik dan koordinat spasial ubin secara simultan dalam hitungan detik.',
+    howToPlay: [
+      'Permainan diawali dari kisi 3x3 dengan 2 warna kontras tinggi.',
+      'Fase Menghafal: Amati kisi selama beberapa detik. Hafalkan letak seluruh warna sebelum ubin tertutup.',
+      'Fase Mengingat: Seluruh ubin tertutup menjadi kartu netral, lalu target warna yang harus dicari akan ditampilkan di bagian atas.',
+      'Ketuk hanya ubin-ubin yang memiliki warna target tersebut hingga seluruhnya ditemukan.',
+      'Setiap level yang berhasil diselesaikan akan meningkatkan ukuran kisi (hingga 6x6) dan memperbanyak variasi warna.',
+    ],
+    penaltyRule:
+      'Aturan Tanpa Nyawa (Sudden Death): Anda tidak memiliki nyawa cadangan. Menekan ubin dengan warna di luar target akan langsung memicu kesalahan dan mengakhiri sesi seketika (Game Over).',
+    optimalTips: [
+      'Gunakan teknik chunking spasial: kelompokkan ubin-ubin sewarna menjadi bentuk atau kelompok pola geometris sederhana.',
+      'Fokuskan hafalan pada warna dengan sebaran ubin yang lebih sedikit untuk memudahkan eliminasi mental.',
+      'Tetap tenang saat memasuki fase mengingat; perhatikan nama dan warna target dengan cermat sebelum mengetuk.',
     ],
   },
   motor: {
@@ -265,30 +284,13 @@ const MODE_GUIDES: Record<ReflexMode, GuideContent> = {
       'Bersiaplah menghadapi peningkatan tempo di 10 trial terakhir di mana bilah waktu menyusut sangat cepat.',
     ],
   },
-  chimp: {
-    scientificBasis:
-      'Terinspirasi dari eksperimen memori fotografis terkenal di Kyoto University oleh Prof. Tetsuro Matsuzawa dengan simpanse Ayumu (2007). Menguji kapasitas persepsi visual instan (eidetic working memory) di mana informasi spasial dipetakan dalam pecahan detik sebelum disaring oleh korteks prefrontal verbal.',
-    howToPlay: [
-      'Angka 1 sampai N akan muncul tersebar secara acak di papan petak spasial.',
-      'Amati dan rekam posisi seluruh angka dalam benak Anda. Angka akan tetap terlihat selama Anda belum menekan apa pun.',
-      'Segera setelah Anda menekan angka "1", SELURUH angka lain langsung tertutup menjadi ubin polos.',
-      'Ketuk sisa ubin yang tertutup tersebut sesuai urutan dari yang terkecil ke terbesar (2, 3, 4, ... N).',
-      'Setiap kali Anda berhasil menyelesaikan satu level, jumlah angka akan bertambah (+1) untuk meningkatkan tantangan spasial.',
-    ],
-    penaltyRule:
-      'Aturan 3 Nyawa (Strikes): Anda memiliki 3 kesempatan nyawa. Mengetuk ubin yang salah akan mengurangi 1 nyawa dan memperlihatkan letak angka yang sebenarnya sejenak. Permainan berakhir saat 3 nyawa habis.',
-    optimalTips: [
-      'Jangan terburu-buru menyentuh angka 1; gunakan 1-2 detik untuk mengambil snapshot mental pola geometris angka.',
-      'Kelompokkan angka menjadi bentuk pola geometris (misal: segitiga, garis melengkung, atau kluster terdekat).',
-      'Jaga ritme ketukan jari tetap santai dan percaya pada memori fotografis pertama Anda.',
-    ],
-  },
 };
 
 const MODE_ICON_MAP: Record<ReflexMode, React.ReactNode> = {
   visual: <Eye className="w-5 h-5 text-rose-500" />,
   audio: <Volume2 className="w-5 h-5 text-sky-500" />,
   memory: <Brain className="w-5 h-5 text-emerald-500" />,
+  color_memory: <Boxes className="w-5 h-5 text-pink-500" />,
   motor: <Crosshair className="w-5 h-5 text-amber-500" />,
   concentration: <Zap className="w-5 h-5 text-violet-500" />,
   digit_span: <Binary className="w-5 h-5 text-indigo-500" />,
@@ -299,7 +301,6 @@ const MODE_ICON_MAP: Record<ReflexMode, React.ReactNode> = {
   switching: <ArrowLeftRight className="w-5 h-5 text-teal-600" />,
   temporal: <Timer className="w-5 h-5 text-emerald-600" />,
   flanker: <ShieldAlert className="w-5 h-5 text-amber-600" />,
-  chimp: <Sparkles className="w-5 h-5 text-amber-500" />,
 };
 
 export const ModeInfoModal: React.FC<ModeInfoModalProps> = ({

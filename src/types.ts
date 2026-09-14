@@ -1,6 +1,6 @@
 import type { ReactNode, MouseEvent } from 'react';
 
-export type ReflexMode = 'visual' | 'audio' | 'memory' | 'motor' | 'concentration' | 'digit_span' | 'nback' | 'matrix' | 'tracking' | 'chromatic' | 'switching' | 'temporal' | 'flanker' | 'chimp';
+export type ReflexMode = 'visual' | 'audio' | 'memory' | 'color_memory' | 'motor' | 'concentration' | 'digit_span' | 'nback' | 'matrix' | 'tracking' | 'chromatic' | 'switching' | 'temporal' | 'flanker';
 
 export type AppView = 'menu' | ReflexMode;
 
@@ -30,6 +30,39 @@ export interface ChromaticLevelConfig {
   anomalyColor: HSLColor;
   targetIndex: number;
   deltaL: number;
+}
+
+export interface ChromaColorDefinition {
+  id: string;
+  name: string;
+  hex: string;
+  twBg: string;
+  twBorder: string;
+  twText: string;
+  twRing: string;
+  twGlow: string;
+}
+
+export interface ChromaTile {
+  id: number;
+  colorId: string;
+  color: ChromaColorDefinition;
+  isRevealed: boolean;
+  isMatched: boolean;
+  isWrong: boolean;
+}
+
+export type ColorMemoryPhase = 'idle' | 'countdown' | 'memorize' | 'recall' | 'level_cleared' | 'game_over';
+
+export interface ChromaLevelConfig {
+  level: number;
+  gridSize: number; // 3 (3x3), 4 (4x4), 5 (5x5), 6 (6x6)
+  totalTiles: number;
+  colorCount: number;
+  memorizeDurationMs: number;
+  activeColors: ChromaColorDefinition[];
+  targetColor: ChromaColorDefinition;
+  targetCount: number;
 }
 
 export interface TrackingBall {
@@ -91,6 +124,7 @@ export interface BestRecords {
   visual: number | null; // min ms
   audio: number | null; // min ms
   memory: number | null; // max level
+  color_memory: number | null; // max level
   motor: number | null; // max hits in 60s
   concentration: number | null; // max score ms
   digit_span: number | null; // max digits span
@@ -101,20 +135,8 @@ export interface BestRecords {
   switching: number | null; // min effective switch cost ms
   temporal: number | null; // min mean absolute deviation ms
   flanker: number | null; // max resilience index (0 - 100 points)
-  chimp: number | null; // max numbers memorized & completed
   [subModeKey: string]: number | null | undefined;
 }
-
-export interface ChimpTile {
-  id: number;
-  number: number; // 1, 2, 3...
-  cellIndex: number; // position on grid
-  isClicked: boolean;
-  isWrong: boolean;
-}
-
-export type ChimpPhase = 'idle' | 'countdown' | 'memorize' | 'recall' | 'round_success' | 'strike_review' | 'game_over';
-
 
 export type FlankerDirection = 'left' | 'right' | 'up' | 'down';
 export type FlankerRuleType = 'direct' | 'inverse';

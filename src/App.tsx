@@ -5,6 +5,7 @@ import { MainMenu } from './components/MainMenu';
 import { VisualMode } from './components/modes/VisualMode';
 import { AudioMode } from './components/modes/AudioMode';
 import { MemoryMode } from './components/modes/MemoryMode';
+import { ColorMemoryMode } from './components/modes/ColorMemoryMode';
 import { MotorMode } from './components/modes/MotorMode';
 import { ConcentrationMode } from './components/modes/ConcentrationMode';
 import { DigitSpanMode } from './components/modes/DigitSpanMode';
@@ -15,7 +16,6 @@ import { ChromaticAnomalyMode } from './components/modes/ChromaticAnomalyMode';
 import { SwitchingMode } from './components/modes/SwitchingMode';
 import { TemporalMode } from './components/modes/TemporalMode';
 import { FlankerMode } from './components/modes/FlankerMode';
-import { ChimpMode } from './components/modes/ChimpMode';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<AppView>('menu');
@@ -74,6 +74,14 @@ export default function App() {
       {currentView === 'memory' && (
         <MemoryMode
           bestRecord={records.memory}
+          onRecordUpdated={reloadData}
+          onBackToMenu={handleBackToMenu}
+        />
+      )}
+
+      {currentView === 'color_memory' && (
+        <ColorMemoryMode
+          bestRecord={records.color_memory}
           onRecordUpdated={reloadData}
           onBackToMenu={handleBackToMenu}
         />
@@ -154,14 +162,6 @@ export default function App() {
       {currentView === 'flanker' && (
         <FlankerMode
           bestRecord={records.flanker}
-          onRecordUpdated={reloadData}
-          onBackToMenu={handleBackToMenu}
-        />
-      )}
-
-      {currentView === 'chimp' && (
-        <ChimpMode
-          bestRecord={records.chimp}
           onRecordUpdated={reloadData}
           onBackToMenu={handleBackToMenu}
         />

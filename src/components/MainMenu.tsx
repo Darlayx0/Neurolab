@@ -16,7 +16,7 @@ import {
   Activity,
   Trophy,
   ShieldAlert,
-  Sparkles,
+  Boxes,
 } from 'lucide-react';
 import { MODE_SUBMODES_MAP, getBestRecord } from '../utils/storage';
 import { evaluateScoreTier } from '../utils/tierSystem';
@@ -123,6 +123,18 @@ export const MainMenu: React.FC<MainMenuProps> = ({
       unit: 'Level',
     },
     {
+      id: 'color_memory',
+      title: 'Memori Kromatik',
+      category: 'memory',
+      categoryTag: 'MEMORI',
+      categoryTagColor: 'text-pink-600 bg-pink-50 border-pink-200/80',
+      shortDescription: 'Retensi spasial warna & target selektif',
+      icon: <Boxes className="w-5 h-5 text-pink-500" />,
+      iconBg: 'bg-pink-50/90 border-pink-100',
+      accentHover: 'hover:border-pink-300/80',
+      unit: 'Level',
+    },
+    {
       id: 'digit_span',
       title: 'Ingatan Angka',
       category: 'memory',
@@ -133,18 +145,6 @@ export const MainMenu: React.FC<MainMenuProps> = ({
       iconBg: 'bg-indigo-50/90 border-indigo-100',
       accentHover: 'hover:border-indigo-300/80',
       unit: 'Digit',
-    },
-    {
-      id: 'chimp',
-      title: 'Memori Simpanse',
-      category: 'memory',
-      categoryTag: 'EIDETIK',
-      categoryTagColor: 'text-amber-600 bg-amber-50 border-amber-200/80',
-      shortDescription: 'Memori fotografis seketika Ayumu',
-      icon: <Sparkles className="w-5 h-5 text-amber-500" />,
-      iconBg: 'bg-amber-50/90 border-amber-100',
-      accentHover: 'hover:border-amber-300/80',
-      unit: 'Angka',
     },
     {
       id: 'matrix',
@@ -242,7 +242,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
     if (mode === 'nback') return `${Math.round(score)}%`;
     if (mode === 'motor') return `${score} Hits`;
     if (mode === 'digit_span') return `${score} Digit`;
-    if (mode === 'memory' || mode === 'tracking' || mode === 'chromatic') return `LVL ${score}`;
+    if (mode === 'memory' || mode === 'color_memory' || mode === 'tracking' || mode === 'chromatic') return `LVL ${score}`;
     if (mode === 'switching' || mode === 'temporal') return `${Math.round(score)} ms`;
     if (mode === 'flanker') return `${Math.round(score)} Poin`;
     return `${score} ${unit}`;

@@ -55,7 +55,7 @@ export const FullRecordsDashboard: React.FC<FullRecordsDashboardProps> = ({
     if (mode === 'nback') return `${Math.round(score)}%`;
     if (mode === 'motor') return `${score} Hits`;
     if (mode === 'digit_span') return `${score} Digit`;
-    if (mode === 'memory' || mode === 'tracking' || mode === 'chromatic') return `LVL ${score}`;
+    if (mode === 'memory' || mode === 'color_memory' || mode === 'tracking' || mode === 'chromatic') return `LVL ${score}`;
     if (mode === 'switching' || mode === 'temporal') return `${Math.round(score)} ms`;
     if (mode === 'flanker') return `${Math.round(score)} Poin`;
     return `${score} ${unit}`;
@@ -92,7 +92,7 @@ export const FullRecordsDashboard: React.FC<FullRecordsDashboardProps> = ({
                 : 'bg-white/80 hover:bg-slate-100 text-slate-600 border border-slate-200/70'
             }`}
           >
-            Semua (18)
+            Semua (19)
           </button>
           <button
             type="button"
@@ -120,7 +120,7 @@ export const FullRecordsDashboard: React.FC<FullRecordsDashboardProps> = ({
                 : 'bg-white/80 hover:bg-slate-100 text-slate-600 border border-slate-200/70'
             }`}
           >
-            Memori (5)
+            Memori (6)
           </button>
           <button
             type="button"

@@ -28,6 +28,7 @@ export const INITIAL_RECORDS: BestRecords = {
   visual: null,
   audio: null,
   memory: null,
+  color_memory: null,
   motor: null,
   concentration: null,
   digit_span: null,
@@ -38,7 +39,6 @@ export const INITIAL_RECORDS: BestRecords = {
   switching: null,
   temporal: null,
   flanker: null,
-  chimp: null,
 };
 
 export function getStoredRecords(): BestRecords {
@@ -50,6 +50,7 @@ export function getStoredRecords(): BestRecords {
       visual: typeof parsed.visual === 'number' ? parsed.visual : null,
       audio: typeof parsed.audio === 'number' ? parsed.audio : null,
       memory: typeof parsed.memory === 'number' ? parsed.memory : null,
+      color_memory: typeof parsed.color_memory === 'number' ? parsed.color_memory : null,
       motor: typeof parsed.motor === 'number' ? parsed.motor : null,
       concentration: typeof parsed.concentration === 'number' ? parsed.concentration : null,
       digit_span: typeof parsed.digit_span === 'number' ? parsed.digit_span : null,
@@ -60,7 +61,6 @@ export function getStoredRecords(): BestRecords {
       switching: typeof parsed.switching === 'number' ? parsed.switching : null,
       temporal: typeof parsed.temporal === 'number' ? parsed.temporal : null,
       flanker: typeof parsed.flanker === 'number' ? parsed.flanker : null,
-      chimp: typeof parsed.chimp === 'number' ? parsed.chimp : null,
     };
 
     // Include composite keys
@@ -463,4 +463,16 @@ export function getChromaticEvaluation(completedLevel: number, accuracy: number)
     desc: t.desc,
   };
 }
+
+export function getColorMemoryEvaluation(completedLevel: number): EvaluationResult {
+  const t = evaluateScoreTier('color_memory', completedLevel);
+  return {
+    rank: t.rank || 6,
+    tier: t.badgeLabel,
+    color: t.colorClass,
+    badgeBg: `${t.badgeBg} ${t.badgeBorder} ${t.textColor}`,
+    desc: t.desc,
+  };
+}
+
 

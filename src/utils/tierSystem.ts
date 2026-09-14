@@ -160,6 +160,21 @@ export const ALL_MODE_TIER_STANDARDS: Record<ReflexMode, ModeStandardsConfig> = 
       { rank: 6, range: '< Level 4', title: 'Bronze / Tahap Pembiasaan', description: 'Daya ingat spasial seketika masih membutuhkan adaptasi terhadap pola matriks.', percentile: 'Tahap Awal' },
     ],
   },
+  color_memory: {
+    mode: 'color_memory',
+    title: 'Standar Tier Memori Kromatik',
+    metricLabel: 'Level Tertinggi Tuntas',
+    unit: 'Level',
+    isLowerBetter: false,
+    tiers: [
+      { rank: 1, range: '≥ Level 14', title: 'Apex / Retensi Spektrum Sempurna', description: 'Kapasitas feature binding spasial-kromatik luar biasa. Mampu memetakan matriks 6x6 dengan variasi hingga 8 warna tanpa cela.', percentile: 'Top 1%' },
+      { rank: 2, range: 'Level 11 - 13', title: 'Master / Memori Spektrum Superior', description: 'Daya ingat visual sangat tajam. Menguasai matriks 5x5 dan transisi ke 6x6 dengan presisi warna tinggi.', percentile: 'Top 5%' },
+      { rank: 3, range: 'Level 8 - 10', title: 'Diamond / Presisi Spasial Tinggi', description: 'Retensi memori kerja stabil pada matriks 5x5 dan seleksi warna target tanpa keraguan.', percentile: 'Top 15%' },
+      { rank: 4, range: 'Level 5 - 7', title: 'Gold / Memori Visual Mahir', description: 'Mampu menguasai matriks 4x4 dengan 4 variasi warna secara konsisten.', percentile: 'Top 40%' },
+      { rank: 5, range: 'Level 3 - 4', title: 'Silver / Retensi Warna Dasar', description: 'Rentang standar sehat; stabil pada matriks 3x3 dan mulai tertantang pada matriks 4x4.', percentile: 'Top 70%' },
+      { rank: 6, range: '< Level 3', title: 'Bronze / Adaptasi Pengikatan Warna', description: 'Daya ingat fitur warna dan posisi spasial masih memerlukan latihan konsolidasi visual.', percentile: 'Tahap Awal' },
+    ],
+  },
   motor: {
     mode: 'motor',
     title: 'Standar Tier Koordinasi Motorik',
@@ -372,21 +387,6 @@ export const ALL_MODE_TIER_STANDARDS: Record<ReflexMode, ModeStandardsConfig> = 
       { rank: 6, range: '< 500 Poin', title: 'Bronze / Tahap Adaptasi Inhibisi', description: 'Akurasi terganggu oleh arah panah distraktor dominan atau kehabisan batas waktu pada fase kritis.', percentile: 'Tahap Awal' },
     ],
   },
-  chimp: {
-    mode: 'chimp',
-    title: 'Standar Tier Memori Simpanse',
-    metricLabel: 'Angka Maksimal Terbuka',
-    unit: 'Angka',
-    isLowerBetter: false,
-    tiers: [
-      { rank: 1, range: '≥ 14 Angka', title: 'Apex / Memori Simpanse Ayumu', description: 'Kapasitas persepsi spasial seketika setara simpanse Ayumu (Kyoto University). Pemetaan koordinat visual instan (<0.5s) dalam sekali snapshot pandangan.', percentile: 'Top 1%' },
-      { rank: 2, range: '12 - 13 Angka', title: 'Master / Memori Fotografis Unggul', description: 'Retensi spasial simultan multi-titik berkecepatan tinggi; mampu mengingat pola geometri spasial kompleks tanpa jeda keraguan.', percentile: 'Top 5%' },
-      { rank: 3, range: '10 - 11 Angka', title: 'Diamond / Presisi Spasial Tinggi', description: 'Melampaui rata-rata manusia; mampu memetakan 10+ koordinat ubin tersembunyi dengan stabil.', percentile: 'Top 15%' },
-      { rank: 4, range: '8 - 9 Angka', title: 'Gold / Di Atas Standar Manusia', description: 'Batas optimal working memory manusia sehat (Hukum George Miller 7±2) dalam kondisi fokus prima.', percentile: 'Top 40%' },
-      { rank: 5, range: '6 - 7 Angka', title: 'Silver / Memori Spasial Sehat', description: 'Rentang kapasitas normal orang dewasa; ubin mulai kabur saat jumlah angka melebihi 7.', percentile: 'Top 70%' },
-      { rank: 6, range: '< 6 Angka', title: 'Bronze / Tahap Adaptasi Spasial', description: 'Persepsi visual butuh waktu pemrosesan lebih panjang; latih snapshot mental sebelum menekan angka 1.', percentile: 'Tahap Awal' },
-    ],
-  },
 };
 
 /**
@@ -450,6 +450,15 @@ export function evaluateScoreTier(
       else if (score >= 8) calculatedRank = 3;
       else if (score >= 6) calculatedRank = 4;
       else if (score >= 4) calculatedRank = 5;
+      else calculatedRank = 6;
+      break;
+    }
+    case 'color_memory': {
+      if (score >= 14) calculatedRank = 1;
+      else if (score >= 11) calculatedRank = 2;
+      else if (score >= 8) calculatedRank = 3;
+      else if (score >= 5) calculatedRank = 4;
+      else if (score >= 3) calculatedRank = 5;
       else calculatedRank = 6;
       break;
     }
@@ -577,15 +586,6 @@ export function evaluateScoreTier(
       else calculatedRank = 6;
       break;
     }
-    case 'chimp': {
-      if (score >= 14) calculatedRank = 1;
-      else if (score >= 12) calculatedRank = 2;
-      else if (score >= 10) calculatedRank = 3;
-      else if (score >= 8) calculatedRank = 4;
-      else if (score >= 6) calculatedRank = 5;
-      else calculatedRank = 6;
-      break;
-    }
     default:
       calculatedRank = 4;
   }
@@ -634,6 +634,7 @@ export function formatModeScore(mode: ReflexMode, score: number | null | undefin
     case 'nback':
       return `${Math.round(score)}%`;
     case 'memory':
+    case 'color_memory':
     case 'tracking':
     case 'chromatic':
       return `Level ${score}`;
@@ -643,8 +644,6 @@ export function formatModeScore(mode: ReflexMode, score: number | null | undefin
       return `${score} ${unit || 'Digit'}`;
     case 'flanker':
       return `${Math.round(score)} ${unit || 'Poin'}`;
-    case 'chimp':
-      return `${score} ${unit || 'Angka'}`;
     default:
       return `${score} ${unit || ''}`;
   }
