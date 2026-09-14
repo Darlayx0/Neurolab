@@ -50,9 +50,10 @@ export interface ChromaTile {
   isRevealed: boolean;
   isMatched: boolean;
   isWrong: boolean;
+  isMissedTarget?: boolean;
 }
 
-export type ColorMemoryPhase = 'idle' | 'countdown' | 'memorize' | 'recall' | 'level_cleared' | 'game_over';
+export type ColorMemoryPhase = 'idle' | 'countdown' | 'memorize' | 'recall' | 'level_cleared' | 'failed_review' | 'game_over';
 
 export interface ChromaLevelConfig {
   level: number;

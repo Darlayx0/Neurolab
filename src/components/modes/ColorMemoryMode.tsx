@@ -9,6 +9,10 @@ import {
   X,
   Target,
   AlertOctagon,
+  ShieldAlert,
+  HelpCircle,
+  Timer,
+  Zap,
 } from 'lucide-react';
 import {
   ChromaColorDefinition,
@@ -138,10 +142,10 @@ export function generateLevelConfig(level: number): ChromaLevelConfig {
 
   let baseDuration = 2800;
   if (gridSize === 4) baseDuration = 3200;
-  if (gridSize === 5) baseDuration = 3600;
-  if (gridSize === 6) baseDuration = 4200;
+  if (gridSize === 5) baseDuration = 3700;
+  if (gridSize === 6) baseDuration = 4300;
 
-  const speedReduction = Math.min(600, ((level - 1) % 4) * 150);
+  const speedReduction = Math.min(600, ((level - 1) % 4) * 140);
   const memorizeDurationMs = Math.max(2200, baseDuration - speedReduction);
 
   const shuffledColors = [...CHROMA_PALETTE].sort(() => Math.random() - 0.5);
@@ -203,6 +207,7 @@ export function generateTilesForConfig(config: ChromaLevelConfig): {
     isRevealed: false,
     isMatched: false,
     isWrong: false,
+    isMissedTarget: false,
   }));
 
   return { tiles, targetCount: finalTargetCount };
@@ -230,7 +235,12 @@ export const ColorMemoryMode: React.FC<ColorMemoryModeProps> = ({
   const [matchedCount, setMatchedCount] = useState<number>(0);
   const [isCountdownOpen, setIsCountdownOpen] = useState<boolean>(false);
 
+  // KUNCI INPUT KETAT (Anti-Cheat & Lockout saat salah / transisi)
+  const [isInputLocked, setIsInputLocked] = useState<boolean>(false);
+
+  // Countdown memorasi visual
   const [memorizeProgress, setMemorizeProgress] = useState<number>(100);
+  const [remainingTimeSeconds, setRemainingTimeSeconds] = useState<string>('0.0');
 
   // Modals
   const [isInfoOpen, setIsInfoOpen] = useState<boolean>(false);
@@ -266,6 +276,7 @@ export const ColorMemoryMode: React.FC<ColorMemoryModeProps> = ({
   const startLevel = useCallback(
     (targetLvl: number) => {
       clearAllTimers();
+      setIsInputLocked(false);
       const config = generateLevelConfig(targetLvl);
       const { tiles: generatedTiles, targetCount } = generateTilesForConfig(config);
       config.targetCount = targetCount;
@@ -274,6 +285,7 @@ export const ColorMemoryMode: React.FC<ColorMemoryModeProps> = ({
       setTiles(generatedTiles);
       setMatchedCount(0);
       setMemorizeProgress(100);
+      setRemainingTimeSeconds((config.memorizeDurationMs / 1000).toFixed(1));
       setPhase('memorize');
 
       memorizeStartTimestamp.current = performance.now();
@@ -281,19 +293,24 @@ export const ColorMemoryMode: React.FC<ColorMemoryModeProps> = ({
       const duration = config.memorizeDurationMs;
       const animateProgress = () => {
         const elapsed = performance.now() - memorizeStartTimestamp.current;
-        const remaining = Math.max(0, 100 - (elapsed / duration) * 100);
-        setMemorizeProgress(remaining);
+        const remainingMs = Math.max(0, duration - elapsed);
+        const remainingPct = (remainingMs / duration) * 100;
+
+        setMemorizeProgress(remainingPct);
+        setRemainingTimeSeconds((remainingMs / 1000).toFixed(1));
 
         if (elapsed < duration) {
           animationFrameRef.current = requestAnimationFrame(animateProgress);
         } else {
           setMemorizeProgress(0);
+          setRemainingTimeSeconds('0.0');
         }
       };
       animationFrameRef.current = requestAnimationFrame(animateProgress);
 
       memorizeTimerRef.current = setTimeout(() => {
         setPhase('recall');
+        setIsInputLocked(false);
       }, duration);
     },
     [clearAllTimers]
@@ -312,13 +329,14 @@ export const ColorMemoryMode: React.FC<ColorMemoryModeProps> = ({
   };
 
   const handleTileClick = (tile: ChromaTile) => {
-    if (phase !== 'recall' || !levelConfig) return;
+    // 1. CEK KETAT ANTI-CHEAT: Tolak jika bukan fase recall, jika input terkunci, atau ubin sudah selesai
+    if (phase !== 'recall' || isInputLocked || !levelConfig) return;
     if (tile.isMatched || tile.isWrong) return;
 
     const isTarget = tile.colorId === levelConfig.targetColor.id;
 
     if (isTarget) {
-      // Benar!
+      // PILIHAN BENAR
       playTactileClick();
       const newMatched = matchedCount + 1;
       setMatchedCount(newMatched);
@@ -329,8 +347,10 @@ export const ColorMemoryMode: React.FC<ColorMemoryModeProps> = ({
         )
       );
 
+      // Cek apakah seluruh ubin target telah ditemukan
       if (newMatched >= levelConfig.targetCount) {
-        // Level Tuntas!
+        // KUNCI INPUT SEKETIKA AGAR TIDAK BISA DIKLIK LAGI SAAT LEVEL CLEAR
+        setIsInputLocked(true);
         playSuccessChime();
         setPhase('level_cleared');
 
@@ -341,23 +361,29 @@ export const ColorMemoryMode: React.FC<ColorMemoryModeProps> = ({
         }, 1100);
       }
     } else {
-      // SALAH! Aturan Tanpa Nyawa (Sudden Death)
+      // SALAH KLIK! ATURAN TANPA NYAWA (SUDDEN DEATH)
+      // 1. KUNCI INPUT SEKETIKA SECARA MUTLAK (Mencegah klik ubin lain / kecurangan)
+      setIsInputLocked(true);
       clearAllTimers();
       playErrorBuzz();
 
-      // Tandai ubin salah dengan efek getar merah dan buka ubin target yang tersisa
+      // 2. MASUK KE FASE REVIEW KEGAGALAN (failed_review)
+      setPhase('failed_review');
+
+      // 3. Buka ubin yang salah (tanda merah getar) dan sorot ubin target yang terlewat
       setTiles((prev) =>
         prev.map((t) => {
           if (t.id === tile.id) {
             return { ...t, isWrong: true, isRevealed: true };
           }
-          if (t.colorId === levelConfig.targetColor.id) {
-            return { ...t, isRevealed: true };
+          if (t.colorId === levelConfig.targetColor.id && !t.isMatched) {
+            return { ...t, isMissedTarget: true, isRevealed: true };
           }
           return t;
         })
       );
 
+      // 4. Jeda review dramatis 1.3 detik, lalu transisi permanen ke GAME OVER
       transitionTimerRef.current = setTimeout(() => {
         setPhase('game_over');
 
@@ -374,13 +400,14 @@ export const ColorMemoryMode: React.FC<ColorMemoryModeProps> = ({
         });
 
         onRecordUpdated();
-      }, 1000);
+      }, 1300);
     }
   };
 
   const handleRestartToPreparation = () => {
     clearAllTimers();
     setIsCountdownOpen(false);
+    setIsInputLocked(false);
     setLevel(1);
     setTiles([]);
     setLevelConfig(null);
@@ -421,7 +448,7 @@ export const ColorMemoryMode: React.FC<ColorMemoryModeProps> = ({
       case 5:
         return 'max-w-sm sm:max-w-[420px]';
       case 6:
-        return 'max-w-[340px] sm:max-w-[440px]';
+        return 'max-w-[340px] sm:max-w-[450px]';
       default:
         return 'max-w-xs sm:max-w-sm';
     }
@@ -429,6 +456,19 @@ export const ColorMemoryMode: React.FC<ColorMemoryModeProps> = ({
 
   return (
     <div className="fixed inset-0 w-full h-full min-h-[100dvh] z-30 flex flex-col select-none overflow-hidden text-slate-900 bg-slate-50">
+      {/* Dynamic Ambient Background Glow based on active state */}
+      {levelConfig && (phase === 'recall' || phase === 'memorize' || phase === 'failed_review') && (
+        <div
+          className="absolute inset-0 pointer-events-none transition-all duration-700 opacity-20 blur-3xl -z-10"
+          style={{
+            background:
+              phase === 'failed_review'
+                ? 'radial-gradient(circle at 50% 40%, #ef4444 0%, transparent 60%)'
+                : `radial-gradient(circle at 50% 40%, ${levelConfig.targetColor.hex} 0%, transparent 60%)`,
+          }}
+        />
+      )}
+
       {/* 1. Header (Hidden during game_over) */}
       {phase !== 'game_over' && (
         <InGameHUD
@@ -449,30 +489,61 @@ export const ColorMemoryMode: React.FC<ColorMemoryModeProps> = ({
       <main className="w-full h-full min-h-[100dvh] flex flex-col items-center justify-center px-4 sm:px-6 pt-16 sm:pt-20 pb-20 sm:pb-24 relative overflow-y-auto">
         <div className="absolute inset-0 bg-[radial-gradient(#94a3b8_1px,transparent_1px)] [background-size:24px_24px] opacity-25 pointer-events-none" />
 
-        {/* Phase: IDLE - Preparation Screen */}
+        {/* Phase: IDLE - Premium Preparation Screen */}
         {phase === 'idle' && (
           <div className="max-w-md w-full text-center relative z-10 flex flex-col items-center animate-in fade-in zoom-in-95 duration-200">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-pink-50 border border-pink-200 flex items-center justify-center mb-4 text-pink-600 shadow-xs">
-              <Boxes className="w-8 h-8 sm:w-10 sm:h-10" />
+            {/* Animated Hero Icon Box */}
+            <div className="relative mb-4">
+              <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-tr from-pink-500 via-rose-500 to-amber-400 p-[2px] shadow-lg shadow-pink-500/20">
+                <div className="w-full h-full rounded-[22px] bg-white flex items-center justify-center text-pink-600">
+                  <Boxes className="w-9 h-9 sm:w-10 sm:h-10 animate-pulse" />
+                </div>
+              </div>
+              <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-slate-900 border-2 border-white flex items-center justify-center text-[10px] font-black text-amber-400 shadow-xs">
+                ★
+              </div>
             </div>
 
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900 mb-2 tracking-tight">
               Uji Memori Kromatik
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-6">
-              Hafalkan posisi warna pada kisi, lalu pilih hanya ubin dengan <strong className="text-slate-900 font-bold">Warna Target</strong> saat kartu tertutup. <span className="text-rose-600 font-bold">Tanpa sistem nyawa</span> — satu kesalahan langsung mengakhiri sesi.
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-5 px-2">
+              Latih pengikatan fitur spasial dan spektrum visual. Hafalkan posisi warna pada kisi, lalu pilih hanya ubin yang sesuai dengan <strong className="text-slate-900 font-bold">Warna Target</strong>.
             </p>
 
-            <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
-              <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
-                Mulai Kisi 3x3 • 2 Warna
-              </span>
-              <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-pink-50 text-pink-700 border border-pink-200">
-                Skala Progresif hingga 6x6
-              </span>
-              <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
-                Eliminasi Seketika (1-Strike)
-              </span>
+            {/* Systematic Feature Highlights */}
+            <div className="grid grid-cols-3 gap-2 w-full mb-6">
+              <div className="p-2.5 rounded-2xl bg-white/80 border border-slate-200/90 shadow-2xs flex flex-col items-center text-center">
+                <div className="w-7 h-7 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700 mb-1.5">
+                  <Boxes className="w-3.5 h-3.5" />
+                </div>
+                <span className="text-[10px] font-bold uppercase text-slate-400">Skala Grid</span>
+                <span className="text-xs font-black text-slate-900">3x3 ➔ 6x6</span>
+              </div>
+
+              <div className="p-2.5 rounded-2xl bg-white/80 border border-slate-200/90 shadow-2xs flex flex-col items-center text-center">
+                <div className="w-7 h-7 rounded-xl bg-pink-50 flex items-center justify-center text-pink-600 mb-1.5">
+                  <Sparkles className="w-3.5 h-3.5" />
+                </div>
+                <span className="text-[10px] font-bold uppercase text-slate-400">Variasi</span>
+                <span className="text-xs font-black text-slate-900">2 ➔ 8 Warna</span>
+              </div>
+
+              <div className="p-2.5 rounded-2xl bg-white/80 border border-rose-200/80 bg-rose-50/40 shadow-2xs flex flex-col items-center text-center">
+                <div className="w-7 h-7 rounded-xl bg-rose-100 flex items-center justify-center text-rose-600 mb-1.5">
+                  <ShieldAlert className="w-3.5 h-3.5" />
+                </div>
+                <span className="text-[10px] font-bold uppercase text-rose-500">Aturan</span>
+                <span className="text-xs font-black text-rose-700">1-Strike Fail</span>
+              </div>
+            </div>
+
+            {/* Micro Rule Caution Banner */}
+            <div className="w-full p-3 rounded-2xl bg-rose-50/80 border border-rose-200 text-left flex items-start gap-2.5 mb-6 shadow-2xs">
+              <AlertOctagon className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+              <div className="text-[11.5px] leading-relaxed text-rose-900">
+                <strong className="font-black text-rose-700">Aturan Tanpa Nyawa:</strong> Sekali mengetuk ubin di luar warna target, sesi langsung berakhir seketika tanpa toleransi klik lanjutan.
+              </div>
             </div>
 
             <AppButton
@@ -482,13 +553,16 @@ export const ColorMemoryMode: React.FC<ColorMemoryModeProps> = ({
               iconPosition="leading"
               variant="primary"
               onClick={() => setIsCountdownOpen(true)}
-              className="bg-slate-900 text-white hover:bg-slate-800 font-black px-8 py-3.5 rounded-2xl shadow-xl shadow-slate-900/20 text-xs sm:text-sm w-full"
+              className="bg-slate-900 text-white hover:bg-slate-800 font-black px-8 py-3.5 rounded-2xl shadow-xl shadow-slate-900/20 text-xs sm:text-sm w-full transition-all active:scale-[0.99]"
             />
           </div>
         )}
 
-        {/* Phase: ACTIVE GAME (memorize, recall, level_cleared) */}
-        {(phase === 'memorize' || phase === 'recall' || phase === 'level_cleared') &&
+        {/* Phase: ACTIVE GAME (memorize, recall, failed_review, level_cleared) */}
+        {(phase === 'memorize' ||
+          phase === 'recall' ||
+          phase === 'failed_review' ||
+          phase === 'level_cleared') &&
           levelConfig && (
             <div
               className={`w-full ${arenaMaxWidth} flex flex-col items-center gap-3 sm:gap-4 relative z-10 animate-in fade-in duration-150`}
@@ -496,18 +570,20 @@ export const ColorMemoryMode: React.FC<ColorMemoryModeProps> = ({
               {/* Contextual Top Status Bar */}
               <div className="w-full flex flex-col gap-2">
                 <div className="w-full flex items-center justify-between px-1 text-xs">
+                  {/* Left: Level & Grid & Colors Info */}
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 text-white font-mono text-xs font-bold shadow-xs">
                       <span>Level {level}</span>
-                      <span className="text-slate-400">•</span>
+                      <span className="text-slate-500">•</span>
                       <span className="text-slate-300">
                         {levelConfig.gridSize}x{levelConfig.gridSize}
                       </span>
-                      <span className="text-slate-400">•</span>
+                      <span className="text-slate-500">•</span>
                       <span className="text-pink-400">{levelConfig.colorCount} Warna</span>
                     </div>
                   </div>
 
+                  {/* Right: Rekor Terbaik & Phase Status */}
                   <div className="flex items-center gap-2">
                     {bestRecord !== null && (
                       <span className="text-[11px] font-mono text-slate-500 hidden sm:inline">
@@ -521,18 +597,25 @@ export const ColorMemoryMode: React.FC<ColorMemoryModeProps> = ({
                           ? 'bg-amber-50 text-amber-900 border-amber-300/80'
                           : phase === 'level_cleared'
                           ? 'bg-emerald-50 text-emerald-900 border-emerald-300/80 animate-in zoom-in-95 duration-150'
+                          : phase === 'failed_review'
+                          ? 'bg-rose-50 text-rose-900 border-rose-300 animate-pulse'
                           : 'bg-indigo-50 text-indigo-900 border-indigo-300/80'
                       }`}
                     >
                       {phase === 'memorize' ? (
                         <>
                           <Eye className="w-3.5 h-3.5 text-amber-600 animate-pulse shrink-0" />
-                          <span>Hafalkan Warna!</span>
+                          <span>Hafalkan Warna! ({remainingTimeSeconds}s)</span>
                         </>
                       ) : phase === 'level_cleared' ? (
                         <>
                           <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                           <span>Level Tuntas!</span>
+                        </>
+                      ) : phase === 'failed_review' ? (
+                        <>
+                          <AlertOctagon className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                          <span>Salah Pilih! Selesai</span>
                         </>
                       ) : (
                         <>
@@ -550,18 +633,20 @@ export const ColorMemoryMode: React.FC<ColorMemoryModeProps> = ({
                   </div>
                 </div>
 
-                {/* Micro Progress Bar */}
+                {/* Fluid Micro Progress Bar */}
                 {phase === 'memorize' ? (
                   <div className="w-full h-1.5 bg-slate-200/80 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-amber-500 rounded-full transition-all duration-75 ease-linear"
+                      className="h-full bg-gradient-to-r from-amber-500 to-rose-500 rounded-full transition-all duration-75 ease-linear"
                       style={{ width: `${memorizeProgress}%` }}
                     />
                   </div>
                 ) : (
                   <div className="w-full h-1.5 bg-slate-200/80 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-indigo-600 rounded-full transition-all duration-200"
+                      className={`h-full rounded-full transition-all duration-200 ${
+                        phase === 'failed_review' ? 'bg-rose-600' : 'bg-indigo-600'
+                      }`}
                       style={{
                         width: `${
                           phase === 'level_cleared'
@@ -575,105 +660,181 @@ export const ColorMemoryMode: React.FC<ColorMemoryModeProps> = ({
               </div>
 
               {/* Dynamic Target Spotlight Banner */}
-              <AnimatePresence>
-                {(phase === 'recall' || phase === 'level_cleared') && (
+              <AnimatePresence mode="wait">
+                {(phase === 'recall' ||
+                  phase === 'level_cleared' ||
+                  phase === 'failed_review') && (
                   <motion.div
-                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                    key="target-banner"
+                    initial={{ opacity: 0, y: -10, scale: 0.96 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.96 }}
                     transition={{ duration: 0.2 }}
-                    className="w-full rounded-2xl bg-white/95 border border-slate-200/90 shadow-xs p-2.5 sm:p-3 flex items-center justify-between gap-3"
+                    className={`w-full rounded-2xl p-2.5 sm:p-3 flex items-center justify-between gap-3 border shadow-xs transition-colors ${
+                      phase === 'failed_review'
+                        ? 'bg-rose-50 border-rose-300'
+                        : 'bg-white/95 border-slate-200/90'
+                    }`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
+                      {/* 3D Swatch Glow Box */}
                       <div
-                        className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl border-2 border-white shadow-md flex items-center justify-center shrink-0"
+                        className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl border-2 border-white shadow-md flex items-center justify-center shrink-0 transition-transform"
                         style={{
                           backgroundColor: levelConfig.targetColor.hex,
-                          boxShadow: `0 4px 14px ${levelConfig.targetColor.hex}44`,
+                          boxShadow: `0 4px 16px ${levelConfig.targetColor.hex}50`,
                         }}
                       >
                         <Sparkles className="w-4 h-4 text-white drop-shadow-xs" />
                       </div>
 
                       <div className="flex flex-col min-w-0">
-                        <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                        <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
                           WARNA TARGET
                         </span>
-                        <span className="text-xs sm:text-sm font-black text-slate-900 truncate">
+                        <span className="text-xs sm:text-sm font-black text-slate-900 truncate tracking-tight">
                           {levelConfig.targetColor.name}
                         </span>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-[10.5px] font-bold shrink-0">
-                      <AlertOctagon className="w-3.5 h-3.5 text-rose-600 shrink-0" />
-                      <span className="hidden sm:inline">Jangan Salah Pilih!</span>
-                      <span className="sm:hidden">1 Strike</span>
+                    {/* Right: Segmented Progress Beads Tracker */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: levelConfig.targetCount }).map((_, beadIdx) => {
+                          const isDone = beadIdx < matchedCount;
+                          return (
+                            <div
+                              key={beadIdx}
+                              className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full transition-all duration-200 ${
+                                isDone
+                                  ? 'bg-emerald-500 ring-2 ring-emerald-300 scale-110 shadow-xs'
+                                  : 'bg-slate-200 border border-slate-300'
+                              }`}
+                            />
+                          );
+                        })}
+                      </div>
+
+                      {/* 1 Strike Alert Pill */}
+                      <div
+                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[10.5px] font-bold border shrink-0 ${
+                          phase === 'failed_review'
+                            ? 'bg-rose-600 text-white border-rose-700 animate-pulse'
+                            : 'bg-rose-50 border-rose-200 text-rose-700'
+                        }`}
+                      >
+                        <AlertOctagon className="w-3.5 h-3.5 shrink-0" />
+                        <span>{phase === 'failed_review' ? 'Eliminasi!' : '1 Strike'}</span>
+                      </div>
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
 
-              {/* Responsive Grid Stage */}
+              {/* Responsive Grid Stage with Absolute Input Lock Guard */}
               <div
-                className={`grid ${gridClasses} gap-2 sm:gap-2.5 w-full aspect-square p-2 sm:p-2.5 rounded-3xl bg-slate-200/40 border border-slate-200/80 shadow-inner`}
+                className={`grid ${gridClasses} gap-2 sm:gap-2.5 w-full aspect-square p-2.5 sm:p-3 rounded-3xl bg-white/70 backdrop-blur-md border border-slate-200/90 shadow-lg relative ${
+                  isInputLocked || phase === 'failed_review' || phase === 'level_cleared'
+                    ? 'pointer-events-none'
+                    : ''
+                }`}
               >
                 {tiles.map((tile) => {
                   const isFaceUp =
                     phase === 'memorize' ||
                     tile.isMatched ||
                     tile.isWrong ||
-                    (tile.isRevealed && phase === 'recall');
+                    tile.isMissedTarget ||
+                    (tile.isRevealed && (phase === 'recall' || phase === 'failed_review'));
 
                   return (
                     <motion.button
                       key={tile.id}
                       type="button"
                       onClick={() => handleTileClick(tile)}
-                      disabled={phase !== 'recall' || tile.isMatched || tile.isWrong}
-                      whileHover={phase === 'recall' && !tile.isMatched ? { scale: 1.04 } : {}}
-                      whileTap={phase === 'recall' && !tile.isMatched ? { scale: 0.94 } : {}}
+                      disabled={
+                        phase !== 'recall' ||
+                        isInputLocked ||
+                        tile.isMatched ||
+                        tile.isWrong ||
+                        phase === 'failed_review'
+                      }
+                      whileHover={
+                        phase === 'recall' && !isInputLocked && !tile.isMatched
+                          ? { scale: 1.05, y: -2 }
+                          : {}
+                      }
+                      whileTap={
+                        phase === 'recall' && !isInputLocked && !tile.isMatched
+                          ? { scale: 0.94 }
+                          : {}
+                      }
                       animate={
                         tile.isWrong
                           ? {
-                              x: [-8, 8, -6, 6, -3, 3, 0],
-                              scale: [1, 1.08, 1],
-                              transition: { duration: 0.4 },
+                              x: [-12, 12, -9, 9, -5, 5, 0],
+                              scale: [1, 1.1, 1],
+                              transition: { duration: 0.45 },
+                            }
+                          : tile.isMissedTarget
+                          ? {
+                              scale: [1, 1.04, 1],
+                              transition: { repeat: Infinity, duration: 0.8 },
                             }
                           : {}
                       }
-                      className={`relative w-full h-full rounded-xl sm:rounded-2xl transition-all duration-150 flex items-center justify-center select-none cursor-pointer overflow-hidden border ${
+                      className={`relative w-full h-full rounded-xl sm:rounded-2xl transition-all duration-150 flex items-center justify-center select-none overflow-hidden border ${
                         tile.isWrong
-                          ? 'border-rose-500 ring-4 ring-rose-400/30 shadow-lg z-20'
+                          ? 'border-rose-600 ring-4 ring-rose-500/50 shadow-xl z-20 cursor-not-allowed'
+                          : tile.isMissedTarget
+                          ? 'border-dashed border-2 border-emerald-400 ring-4 ring-emerald-400/30 shadow-md z-10'
                           : tile.isMatched
-                          ? 'border-emerald-400/80 ring-2 ring-emerald-400/30 shadow-xs'
+                          ? 'border-emerald-400/90 ring-2 ring-emerald-400/30 shadow-xs'
                           : isFaceUp
                           ? `${tile.color.twBorder} shadow-xs`
-                          : 'bg-white hover:bg-slate-50 border-slate-200/90 shadow-2xs hover:border-indigo-300 active:bg-indigo-50/50'
+                          : 'bg-gradient-to-br from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 border-slate-700 shadow-xs hover:border-indigo-400 cursor-pointer active:scale-95'
                       }`}
                       style={{
                         backgroundColor: isFaceUp ? tile.color.hex : undefined,
+                        boxShadow: isFaceUp ? `0 4px 14px ${tile.color.hex}35` : undefined,
                       }}
                     >
+                      {/* Face Down Card: Sleek Architectural Pattern */}
                       {!isFaceUp && (
                         <div className="w-full h-full flex items-center justify-center relative">
-                          <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-slate-300/80 transition-colors" />
+                          <div className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full bg-slate-600/80 flex items-center justify-center transition-colors">
+                            <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+                          </div>
                         </div>
                       )}
 
+                      {/* Face Up: Matched Success Icon */}
                       {tile.isMatched && (
                         <motion.div
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
-                          className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-white/90 shadow-sm flex items-center justify-center"
+                          className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/95 shadow-md flex items-center justify-center"
                         >
-                          <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 stroke-[3]" />
+                          <Check className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-emerald-600 stroke-[3]" />
                         </motion.div>
                       )}
 
+                      {/* Face Up: Wrong Error Icon */}
                       {tile.isWrong && (
-                        <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-rose-600 shadow-md flex items-center justify-center text-white">
-                          <X className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3]" />
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-rose-600 shadow-xl flex items-center justify-center text-white ring-2 ring-white"
+                        >
+                          <X className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[3]" />
+                        </motion.div>
+                      )}
+
+                      {/* Face Up: Missed Target Highlight Marker */}
+                      {tile.isMissedTarget && (
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/90 shadow-md flex items-center justify-center text-emerald-700">
+                          <Target className="w-4 h-4 stroke-[2.5]" />
                         </div>
                       )}
                     </motion.button>
@@ -693,7 +854,7 @@ export const ColorMemoryMode: React.FC<ColorMemoryModeProps> = ({
             return (
               <GameResultView
                 modeTitle="Memori Kromatik"
-                subModeLabel={`Level ${finalScore} Tuntas • Rekor Retensi Spasial`}
+                subModeLabel={`Level ${finalScore} Selesai • Rekor Retensi Spasial`}
                 primaryScore={finalScore}
                 scoreUnit="Level"
                 isNewRecord={isNewRec}
@@ -717,12 +878,12 @@ export const ColorMemoryMode: React.FC<ColorMemoryModeProps> = ({
                   },
                   {
                     id: 'colors',
-                    label: 'Jumlah Warna',
+                    label: 'Keragaman Spektrum',
                     value: levelConfig ? `${levelConfig.colorCount} Warna` : '-',
                   },
                   {
                     id: 'target',
-                    label: 'Target Warna Terakhir',
+                    label: 'Target Terakhir',
                     value: levelConfig ? levelConfig.targetColor.name : '-',
                   },
                 ]}
