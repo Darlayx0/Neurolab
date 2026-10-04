@@ -9,6 +9,8 @@ export const MASTER_SCALE_SHAPES: Omit<ScaleShape, 'weight'>[] = [
     borderColor: 'border-rose-400',
     textColor: 'text-rose-500',
     ringColor: 'ring-rose-400/50',
+    hexFill: '#f43f5e',
+    hexBorder: '#fb7185',
   },
   {
     id: 'square',
@@ -18,6 +20,8 @@ export const MASTER_SCALE_SHAPES: Omit<ScaleShape, 'weight'>[] = [
     borderColor: 'border-emerald-400',
     textColor: 'text-emerald-500',
     ringColor: 'ring-emerald-400/50',
+    hexFill: '#10b981',
+    hexBorder: '#34d399',
   },
   {
     id: 'triangle',
@@ -27,6 +31,8 @@ export const MASTER_SCALE_SHAPES: Omit<ScaleShape, 'weight'>[] = [
     borderColor: 'border-amber-400',
     textColor: 'text-amber-500',
     ringColor: 'ring-amber-400/50',
+    hexFill: '#f59e0b',
+    hexBorder: '#fbbf24',
   },
   {
     id: 'diamond',
@@ -36,6 +42,8 @@ export const MASTER_SCALE_SHAPES: Omit<ScaleShape, 'weight'>[] = [
     borderColor: 'border-sky-400',
     textColor: 'text-sky-500',
     ringColor: 'ring-sky-400/50',
+    hexFill: '#0ea5e9',
+    hexBorder: '#38bdf8',
   },
   {
     id: 'hexagon',
@@ -45,6 +53,8 @@ export const MASTER_SCALE_SHAPES: Omit<ScaleShape, 'weight'>[] = [
     borderColor: 'border-violet-400',
     textColor: 'text-violet-500',
     ringColor: 'ring-violet-400/50',
+    hexFill: '#8b5cf6',
+    hexBorder: '#a78bfa',
   },
   {
     id: 'star',
@@ -54,6 +64,8 @@ export const MASTER_SCALE_SHAPES: Omit<ScaleShape, 'weight'>[] = [
     borderColor: 'border-orange-400',
     textColor: 'text-orange-500',
     ringColor: 'ring-orange-400/50',
+    hexFill: '#f97316',
+    hexBorder: '#fb923c',
   },
   {
     id: 'cylinder',
@@ -63,8 +75,104 @@ export const MASTER_SCALE_SHAPES: Omit<ScaleShape, 'weight'>[] = [
     borderColor: 'border-pink-400',
     textColor: 'text-pink-500',
     ringColor: 'ring-pink-400/50',
+    hexFill: '#ec4899',
+    hexBorder: '#f472b6',
   },
 ];
+
+export interface LevelDifficultyMeta {
+  stageName: string;
+  stageBadge: string;
+  badgeColor: string;
+  shapeCount: number;
+  scaleCount: number;
+  timeLimitSec: number;
+  description: string;
+}
+
+export const DIFFICULTY_STAGES_LIST = [
+  {
+    range: 'Level 1 – 4',
+    title: 'Fase Dasar',
+    shapes: '3 Benda Geometris',
+    scales: '2 Neraca Timbangan',
+    time: '12 – 10 Detik',
+    tagColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    desc: 'Pengenalan relasi transitif langsung (A > B dan B > C). Menentukan objek paling berat atau paling ringan.',
+  },
+  {
+    range: 'Level 5 – 8',
+    title: 'Fase Menengah',
+    shapes: '3 – 4 Benda',
+    scales: '2 – 3 Neraca Timbangan',
+    time: '9 – 8 Detik',
+    tagColor: 'bg-amber-50 text-amber-700 border-amber-200',
+    desc: 'Pengurangan batas waktu dan introduksi pertanyaan nilai tengah (median) serta 4 objek komparasi.',
+  },
+  {
+    range: 'Level 9 – 12',
+    title: 'Fase Mahir',
+    shapes: '4 Benda Geometris',
+    scales: '3 Neraca Timbangan',
+    time: '7 Detik',
+    tagColor: 'bg-sky-50 text-sky-700 border-sky-200',
+    desc: 'Rantai perbandingan multi-tingkat. Posisi neraca dan piringan diacak penuh dan menuntut eliminasi cepat.',
+  },
+  {
+    range: 'Level 13+',
+    title: 'Fase Master & Apex',
+    shapes: '4 – 5 Benda',
+    scales: '3 – 4 Neraca Timbangan',
+    time: '5 Detik',
+    tagColor: 'bg-purple-50 text-purple-700 border-purple-200',
+    desc: 'Beban kerja memori kerja maksimum di tempo kilat. Menuntut pemetaan hierarki visual instan.',
+  },
+];
+
+export function getLevelDifficultyInfo(level: number): LevelDifficultyMeta {
+  if (level <= 4) {
+    return {
+      stageName: 'Dasar',
+      stageBadge: 'Fase 1: Dasar',
+      badgeColor: 'text-emerald-700 bg-emerald-50 border-emerald-200/80',
+      shapeCount: 3,
+      scaleCount: 2,
+      timeLimitSec: level <= 2 ? 12 : 10,
+      description: '3 Benda • 2 Neraca • Waktu Stabil',
+    };
+  }
+  if (level <= 8) {
+    return {
+      stageName: 'Menengah',
+      stageBadge: 'Fase 2: Menengah',
+      badgeColor: 'text-amber-700 bg-amber-50 border-amber-200/80',
+      shapeCount: level <= 6 ? 3 : 4,
+      scaleCount: level <= 6 ? 2 : 3,
+      timeLimitSec: level <= 6 ? 9 : 8,
+      description: '3–4 Benda • 2–3 Neraca • Waktu Menyusut',
+    };
+  }
+  if (level <= 12) {
+    return {
+      stageName: 'Mahir',
+      stageBadge: 'Fase 3: Mahir',
+      badgeColor: 'text-sky-700 bg-sky-50 border-sky-200/80',
+      shapeCount: 4,
+      scaleCount: 3,
+      timeLimitSec: 7,
+      description: '4 Benda • 3 Neraca • Rantai Transitif',
+    };
+  }
+  return {
+    stageName: 'Master / Apex',
+    stageBadge: 'Fase 4: Master',
+    badgeColor: 'text-purple-700 bg-purple-50 border-purple-200/80',
+    shapeCount: 5,
+    scaleCount: 4,
+    timeLimitSec: 5,
+    description: '4–5 Benda • 3–4 Neraca • Tempo Kilat',
+  };
+}
 
 /**
  * Acak urutan array secara in-place menggunakan algoritma Fisher-Yates
@@ -83,10 +191,11 @@ export function shuffleArray<T>(array: T[]): T[] {
  */
 export function calculateTimeoutForLevel(level: number): number {
   if (level <= 2) return 12000;
-  if (level <= 5) return 10000;
-  if (level <= 8) return 8500;
+  if (level <= 4) return 10000;
+  if (level <= 6) return 9000;
+  if (level <= 8) return 8000;
   if (level <= 12) return 7000;
-  if (level <= 15) return 6000;
+  if (level <= 14) return 6000;
   return 5000;
 }
 
@@ -96,10 +205,10 @@ export function calculateTimeoutForLevel(level: number): number {
 export function generateScaleTrial(level: number, trialIndex: number): ScaleTrialConfig {
   // 1. Tentukan jumlah objek berdasarkan level
   let numShapes = 3;
-  if (level >= 6 && level <= 11) {
+  if (level >= 7 && level <= 12) {
     numShapes = 4;
-  } else if (level >= 12) {
-    numShapes = Math.random() < 0.65 ? 4 : 5;
+  } else if (level >= 13) {
+    numShapes = Math.random() < 0.6 ? 4 : 5;
   }
 
   // 2. Pilih N bentuk unik acak dari master shapes

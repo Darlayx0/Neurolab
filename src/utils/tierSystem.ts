@@ -394,12 +394,12 @@ export const ALL_MODE_TIER_STANDARDS: Record<ReflexMode, ModeStandardsConfig> = 
     unit: 'Level',
     isLowerBetter: false,
     tiers: [
-      { rank: 1, range: '≥ Level 16', title: 'Apex / Grandmaster Deduksi Mental', description: 'Pemetaan relasi transitif multi-cabang berlangsung simultan. Beban kerja kognitif diuraikan secara instan tanpa friksi.', percentile: 'Top 1%' },
-      { rank: 2, range: 'Level 13 - 15', title: 'Master / Penalaran Relasional Superior', description: 'Kapasitas inferensi prefrontal sangat tinggi, mampu mengisolasi variabel perantara dengan latensi mikro.', percentile: 'Top 5%' },
-      { rank: 3, range: 'Level 10 - 12', title: 'Diamond / Presisi Deduksi Unggul', description: 'Daya sintesis logika di atas rata-rata populasi, konsisten pada perbandingan 4 objek di bawah tekanan waktu.', percentile: 'Top 15%' },
-      { rank: 4, range: 'Level 7 - 9', title: 'Gold / Standar Logika Dewasa Sehat', description: 'Rentang normal populasi manusia dewasa sehat. Penalaran 3-4 variabel berjalan baik dengan waktu pertimbangan stabil.', percentile: 'Top 40%' },
-      { rank: 5, range: 'Level 4 - 6', title: 'Silver / Transisi Logika Sedang', description: 'Penguraian relasi perbandingan membutuhkan verifikasi berulang; rentan terdesak oleh batas waktu ronde.', percentile: 'Top 70%' },
-      { rank: 6, range: '≤ Level 3', title: 'Bronze / Adaptasi Penalaran Awal', description: 'Tahap adaptasi dalam menyusun hierarki perbandingan visual dan abstraksi bobot transitif.', percentile: 'Tahap Awal' },
+      { rank: 1, range: '≥ Level 15', title: 'Apex / Grandmaster Deduksi Mental', description: 'Pemetaan relasi transitif multi-cabang berlangsung simultan. Beban kerja kognitif diuraikan secara instan tanpa friksi.', percentile: 'Top 1%' },
+      { rank: 2, range: 'Level 12 - 14', title: 'Master / Penalaran Relasional Superior', description: 'Kapasitas inferensi prefrontal sangat tinggi, mampu mengisolasi variabel perantara dengan latensi mikro.', percentile: 'Top 5%' },
+      { rank: 3, range: 'Level 9 - 11', title: 'Diamond / Presisi Deduksi Unggul', description: 'Daya sintesis logika di atas rata-rata populasi, konsisten pada perbandingan 4 objek di bawah tekanan waktu.', percentile: 'Top 15%' },
+      { rank: 4, range: 'Level 6 - 8', title: 'Gold / Standar Logika Dewasa Sehat', description: 'Rentang normal populasi manusia dewasa sehat. Penalaran 3-4 variabel berjalan baik dengan waktu pertimbangan stabil.', percentile: 'Top 40%' },
+      { rank: 5, range: 'Level 3 - 5', title: 'Silver / Transisi Logika Sedang', description: 'Penguraian relasi perbandingan membutuhkan verifikasi berulang; rentan terdesak oleh batas waktu ronde.', percentile: 'Top 70%' },
+      { rank: 6, range: '≤ Level 2', title: 'Bronze / Adaptasi Penalaran Awal', description: 'Tahap adaptasi dalam menyusun hierarki perbandingan visual dan abstraksi bobot transitif.', percentile: 'Tahap Awal' },
     ],
   },
 };
@@ -602,11 +602,11 @@ export function evaluateScoreTier(
       break;
     }
     case 'logic_scale': {
-      if (score >= 16) calculatedRank = 1;
-      else if (score >= 13) calculatedRank = 2;
-      else if (score >= 10) calculatedRank = 3;
-      else if (score >= 7) calculatedRank = 4;
-      else if (score >= 4) calculatedRank = 5;
+      if (score >= 15) calculatedRank = 1;
+      else if (score >= 12) calculatedRank = 2;
+      else if (score >= 9) calculatedRank = 3;
+      else if (score >= 6) calculatedRank = 4;
+      else if (score >= 3) calculatedRank = 5;
       else calculatedRank = 6;
       break;
     }

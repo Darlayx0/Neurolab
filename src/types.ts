@@ -150,6 +150,8 @@ export interface ScaleShape {
   borderColor: string;
   textColor: string;
   ringColor: string;
+  hexFill: string;
+  hexBorder: string;
   weight: number; // 1 to N (higher = heavier)
 }
 

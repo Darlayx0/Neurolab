@@ -292,6 +292,7 @@ const MODE_GUIDES: Record<ReflexMode, GuideContent> = {
       'Amati 2 hingga 3 neraca timbangan yang membandingkan pasangan benda geometris.',
       'Sisi piringan yang miring ke bawah menunjukkan benda yang LEBIH BERAT daripada sisi yang terangkat ke atas.',
       'Baca pertanyaan di layar: tentukan benda mana yang PALING BERAT, PALING RINGAN, atau BERBOBOT SEDANG (di tengah).',
+      'Rentang Kesulitan Level: Level 1–4 (Dasar: 3 benda, 2 neraca, 12s–10s) ➔ Level 5–8 (Menengah: 3–4 benda, 2–3 neraca, 9s–8s) ➔ Level 9–12 (Mahir: 4 benda, 3 neraca, 7s) ➔ Level 13+ (Master: 4–5 benda, 3–4 neraca, 5s tempo kilat).',
       'Pilih jawaban yang benar secepat mungkin sebelum bilah waktu ronde habis.',
       'Kontrol: Sentuh tombol pilihan jawaban di layar atau gunakan tombol angka keyboard (1, 2, 3, 4).',
     ],
