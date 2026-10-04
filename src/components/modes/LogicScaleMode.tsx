@@ -8,7 +8,6 @@ import {
 import {
   generateScaleTrial,
   getLevelDifficultyInfo,
-  DIFFICULTY_STAGES_LIST,
 } from '../../utils/logicScaleGenerator';
 import { playSuccessChime, playErrorBuzz, playTactileClick } from '../../utils/audio';
 import { saveBestRecord, addHistoryItem } from '../../utils/storage';
@@ -29,8 +28,6 @@ import {
   Sparkles,
   CheckCircle2,
   XCircle,
-  HelpCircle,
-  Shield,
   Layers,
 } from 'lucide-react';
 
@@ -49,11 +46,11 @@ export const ShapeCardBadge: React.FC<{
   shape: ScaleShape;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
-}> = ({ shape, size = 'md', className = '' }) => {
+}> = ({ shape, size = 'sm', className = '' }) => {
   const sizeMap = {
-    sm: { container: 'w-7 h-7 sm:w-8 sm:h-8', svg: 'w-5 h-5' },
-    md: { container: 'w-10 h-10 sm:w-11 sm:h-11', svg: 'w-7 h-7' },
-    lg: { container: 'w-12 h-12 sm:w-14 sm:h-14', svg: 'w-8 h-8 sm:w-9 sm:h-9' },
+    sm: { container: 'w-7 h-7 sm:w-8 sm:h-8', svg: 'w-4.5 h-4.5 sm:w-5 sm:h-5' },
+    md: { container: 'w-9 h-9 sm:w-10 sm:h-10', svg: 'w-6 h-6' },
+    lg: { container: 'w-11 h-11 sm:w-12 sm:h-12', svg: 'w-7 h-7 sm:w-8 sm:h-8' },
   };
 
   const currentSize = sizeMap[size];
@@ -88,7 +85,7 @@ export const ShapeCardBadge: React.FC<{
 
   return (
     <div
-      className={`rounded-2xl flex items-center justify-center shadow-2xs border transition-all duration-150 ${currentSize.container} ${shape.bgColor}/10 ${shape.borderColor} ${className}`}
+      className={`rounded-xl flex items-center justify-center shadow-2xs border transition-all duration-150 ${currentSize.container} ${shape.bgColor}/10 ${shape.borderColor} ${className}`}
       title={shape.name}
     >
       <svg viewBox="0 0 32 32" className={`${currentSize.svg} drop-shadow-2xs`} xmlns="http://www.w3.org/2000/svg">
@@ -104,28 +101,28 @@ export const ShapeCardBadge: React.FC<{
 const SVGShapeElement: React.FC<{ shape: ScaleShape }> = ({ shape }) => {
   switch (shape.id) {
     case 'circle':
-      return <circle cx="0" cy="0" r="9" fill={shape.hexFill} stroke={shape.hexBorder} strokeWidth="1.5" />;
+      return <circle cx="0" cy="0" r="8.5" fill={shape.hexFill} stroke={shape.hexBorder} strokeWidth="1.5" />;
     case 'square':
-      return <rect x="-8" y="-8" width="16" height="16" rx="3.5" fill={shape.hexFill} stroke={shape.hexBorder} strokeWidth="1.5" />;
+      return <rect x="-7.5" y="-7.5" width="15" height="15" rx="3" fill={shape.hexFill} stroke={shape.hexBorder} strokeWidth="1.5" />;
     case 'triangle':
-      return <polygon points="0,-9.5 9,7.5 -9,7.5" fill={shape.hexFill} stroke={shape.hexBorder} strokeWidth="1.5" />;
+      return <polygon points="0,-8.5 8.5,7 -8.5,7" fill={shape.hexFill} stroke={shape.hexBorder} strokeWidth="1.5" />;
     case 'diamond':
-      return <polygon points="0,-9.5 9.5,0 0,9.5 -9.5,0" fill={shape.hexFill} stroke={shape.hexBorder} strokeWidth="1.5" />;
+      return <polygon points="0,-9 9,0 0,9 -9,0" fill={shape.hexFill} stroke={shape.hexBorder} strokeWidth="1.5" />;
     case 'hexagon':
-      return <polygon points="0,-9.5 8,-5 8,5 0,9.5 -8,5 -8,-5" fill={shape.hexFill} stroke={shape.hexBorder} strokeWidth="1.5" />;
+      return <polygon points="0,-9 7.5,-4.5 7.5,4.5 0,9 -7.5,4.5 -7.5,-4.5" fill={shape.hexFill} stroke={shape.hexBorder} strokeWidth="1.5" />;
     case 'star':
       return (
         <polygon
-          points="0,-9.5 2.6,-3 9.5,-3 4,1.2 6.2,8 0,3.8 -6.2,8 -4,1.2 -9.5,-3 -2.6,-3"
+          points="0,-9 2.4,-2.8 9,-2.8 3.8,1.2 5.8,7.5 0,3.6 -5.8,7.5 -3.8,1.2 -9,-2.8 -2.4,-2.8"
           fill={shape.hexFill}
           stroke={shape.hexBorder}
           strokeWidth="1.5"
         />
       );
     case 'cylinder':
-      return <rect x="-6.5" y="-8.5" width="13" height="17" rx="4.5" fill={shape.hexFill} stroke={shape.hexBorder} strokeWidth="1.5" />;
+      return <rect x="-6" y="-8" width="12" height="16" rx="4" fill={shape.hexFill} stroke={shape.hexBorder} strokeWidth="1.5" />;
     default:
-      return <circle cx="0" cy="0" r="9" fill={shape.hexFill} stroke={shape.hexBorder} strokeWidth="1.5" />;
+      return <circle cx="0" cy="0" r="8.5" fill={shape.hexFill} stroke={shape.hexBorder} strokeWidth="1.5" />;
   }
 };
 
@@ -138,40 +135,40 @@ const BalanceScaleSVG: React.FC<{
 }> = ({ pair, scaleNumber }) => {
   const isLeftHeavier = pair.tilt === 'left';
 
-  // Geometri matematis terpadu (viewBox="0 0 200 135")
+  // Geometri matematis terpadu (viewBox="0 0 200 130")
   const cx = 100;
-  const cy = 36;
-  const beamHalfLength = 66;
-  const deltaY = 13; // Derajat kemiringan vertikal
+  const cy = 35;
+  const beamHalfLength = 65;
+  const deltaY = 12; // Sudut kemiringan balok
 
-  const x1 = cx - beamHalfLength; // 34
-  const y1 = isLeftHeavier ? cy + deltaY : cy - deltaY; // 49 (turun) atau 23 (naik)
+  const x1 = cx - beamHalfLength; // 35
+  const y1 = isLeftHeavier ? cy + deltaY : cy - deltaY; // 47 (turun) atau 23 (naik)
 
-  const x2 = cx + beamHalfLength; // 166
-  const y2 = isLeftHeavier ? cy - deltaY : cy + deltaY; // 23 (naik) atau 49 (turun)
+  const x2 = cx + beamHalfLength; // 165
+  const y2 = isLeftHeavier ? cy - deltaY : cy + deltaY; // 23 (naik) atau 47 (turun)
 
-  const stringLen = 26;
-  const panDropY = 6;
+  const stringLen = 25;
+  const panDropY = 5;
 
   const leftPanY = y1 + stringLen;
   const rightPanY = y2 + stringLen;
 
   // Titik tengah bentuk di atas piringan
   const leftShapeX = x1;
-  const leftShapeY = leftPanY - 9.5;
+  const leftShapeY = leftPanY - 8.5;
 
   const rightShapeX = x2;
-  const rightShapeY = rightPanY - 9.5;
+  const rightShapeY = rightPanY - 8.5;
 
   return (
-    <div className="flex flex-col items-center p-2.5 sm:p-3 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-xs transition-all select-none w-full">
+    <div className="flex flex-col items-center p-2 sm:p-2.5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-xs transition-all select-none w-full">
       {/* Header Kartu Neraca */}
-      <div className="w-full flex items-center justify-between mb-1">
-        <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 font-mono">
+      <div className="w-full flex items-center justify-between mb-0.5">
+        <span className="text-[9.5px] font-black uppercase tracking-wider text-slate-400 font-mono">
           NERACA #{scaleNumber}
         </span>
-        <span className={`text-[9.5px] font-bold px-1.5 py-0.5 rounded-full ${
-          isLeftHeavier ? 'text-blue-700 bg-blue-50' : 'text-indigo-700 bg-indigo-50'
+        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
+          isLeftHeavier ? 'text-blue-700 bg-blue-50 border border-blue-100' : 'text-indigo-700 bg-indigo-50 border border-indigo-100'
         }`}>
           {isLeftHeavier ? 'Kiri Lebih Berat' : 'Kanan Lebih Berat'}
         </span>
@@ -179,36 +176,36 @@ const BalanceScaleSVG: React.FC<{
 
       {/* SVG Canvas Utuh: Responsif, Presisi, & Bebas Potongan */}
       <svg
-        viewBox="0 0 200 135"
-        className="w-full h-auto max-h-[140px] drop-shadow-2xs overflow-visible"
+        viewBox="0 0 200 130"
+        className="w-full h-auto max-h-[130px] drop-shadow-2xs overflow-visible"
         xmlns="http://www.w3.org/2000/svg"
       >
         {/* Papan Dasar (Base) & Tiang Penopang Tengah */}
-        <rect x="68" y="122" width="64" height="8" rx="4" fill="#334155" />
-        <rect x="97" y="36" width="6" height="86" rx="2" fill="#475569" />
+        <rect x="66" y="122" width="68" height="6.5" rx="3.25" fill="#334155" />
+        <rect x="97.5" y="34" width="5" height="88" fill="#475569" />
 
         {/* Titik Engsel Segitiga (Fulcrum Pin) */}
-        <polygon points="100,28 92,44 108,44" fill="#1e293b" />
+        <polygon points="100,28 92,42 108,42" fill="#1e293b" />
 
         {/* Tali Gantungan Kiri */}
-        <line x1={x1} y1={y1} x2={x1 - 15} y2={leftPanY} stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" />
-        <line x1={x1} y1={y1} x2={x1 + 15} y2={leftPanY} stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" />
+        <line x1={x1} y1={y1} x2={x1 - 14} y2={leftPanY} stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" />
+        <line x1={x1} y1={y1} x2={x1 + 14} y2={leftPanY} stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" />
 
         {/* Piringan Neraca Kiri */}
         <path
-          d={`M ${x1 - 18} ${leftPanY} Q ${x1} ${leftPanY + panDropY} ${x1 + 18} ${leftPanY}`}
+          d={`M ${x1 - 16} ${leftPanY} Q ${x1} ${leftPanY + panDropY} ${x1 + 16} ${leftPanY}`}
           fill="#475569"
           stroke="#334155"
           strokeWidth="1.5"
         />
 
         {/* Tali Gantungan Kanan */}
-        <line x1={x2} y1={y2} x2={x2 - 15} y2={rightPanY} stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" />
-        <line x1={x2} y1={y2} x2={x2 + 15} y2={rightPanY} stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" />
+        <line x1={x2} y1={y2} x2={x2 - 14} y2={rightPanY} stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" />
+        <line x1={x2} y1={y2} x2={x2 + 14} y2={rightPanY} stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" />
 
         {/* Piringan Neraca Kanan */}
         <path
-          d={`M ${x2 - 18} ${rightPanY} Q ${x2} ${rightPanY + panDropY} ${x2 + 18} ${rightPanY}`}
+          d={`M ${x2 - 16} ${rightPanY} Q ${x2} ${rightPanY + panDropY} ${x2 + 16} ${rightPanY}`}
           fill="#475569"
           stroke="#334155"
           strokeWidth="1.5"
@@ -221,12 +218,12 @@ const BalanceScaleSVG: React.FC<{
           x2={x2}
           y2={y2}
           stroke="#334155"
-          strokeWidth="4"
+          strokeWidth="3.5"
           strokeLinecap="round"
         />
 
         {/* Pin Poros Pusat */}
-        <circle cx={cx} cy={cy} r="4.5" fill="#0f172a" stroke="#cbd5e1" strokeWidth="2" />
+        <circle cx={cx} cy={cy} r="4" fill="#0f172a" stroke="#cbd5e1" strokeWidth="2" />
 
         {/* Bentuk Kiri di Atas Piringan */}
         <g transform={`translate(${leftShapeX}, ${leftShapeY})`}>
@@ -240,21 +237,21 @@ const BalanceScaleSVG: React.FC<{
       </svg>
 
       {/* Label Keterangan Sisi Kiri & Kanan */}
-      <div className="w-full flex items-center justify-between text-[10.5px] font-bold text-slate-700 mt-1 px-1 border-t border-slate-100 pt-1.5">
-        <span className="truncate max-w-[48%] flex items-center gap-1">
+      <div className="w-full flex items-center justify-between text-[9.5px] font-bold text-slate-700 mt-0.5 px-0.5 border-t border-slate-100 pt-1">
+        <span className="truncate max-w-[48%] flex items-center gap-0.5">
           {isLeftHeavier ? (
-            <span className="text-blue-600 font-black text-xs">▼ Berat</span>
+            <span className="text-blue-600 font-black">▼</span>
           ) : (
-            <span className="text-slate-400 text-xs">▲ Ringan</span>
+            <span className="text-slate-400">▲</span>
           )}
           <span className="truncate">{pair.leftShape.name}</span>
         </span>
-        <span className="truncate max-w-[48%] flex items-center gap-1 justify-end">
+        <span className="truncate max-w-[48%] flex items-center gap-0.5 justify-end">
           <span className="truncate">{pair.rightShape.name}</span>
           {!isLeftHeavier ? (
-            <span className="text-blue-600 font-black text-xs">▼ Berat</span>
+            <span className="text-blue-600 font-black">▼</span>
           ) : (
-            <span className="text-slate-400 text-xs">▲ Ringan</span>
+            <span className="text-slate-400">▲</span>
           )}
         </span>
       </div>
@@ -334,7 +331,6 @@ export const LogicScaleMode: React.FC<LogicScaleModeProps> = ({
     setTimeLeftMs(trial.timeoutMs);
     trialStartTimeRef.current = Date.now();
 
-    // Jalankan timer hitung mundur per milidetik
     const intervalStep = 50;
     timerIntervalRef.current = setInterval(() => {
       setTimeLeftMs((prev) => {
@@ -361,12 +357,10 @@ export const LogicScaleMode: React.FC<LogicScaleModeProps> = ({
     const accuracy = totalRounds > 0 ? Math.round((correctCount / totalRounds) * 100) : 0;
     const avgRt = correctCount > 0 ? Math.round(totalReactionTimeMsRef.current / correctCount) : 0;
 
-    // Evaluasi rekor baru (berdasarkan level tertinggi yang berhasil diselesaikan)
     const completedLevel = Math.max(1, level);
     const saveResult = saveBestRecord('logic_scale', completedLevel);
     setIsNewBest(saveResult.isNewBest);
 
-    // Simpan ke riwayat lokal
     addHistoryItem({
       mode: 'logic_scale',
       primaryMetric: completedLevel,
@@ -434,7 +428,6 @@ export const LogicScaleMode: React.FC<LogicScaleModeProps> = ({
       correctRoundsRef.current += 1;
       totalReactionTimeMsRef.current += rt;
 
-      // Hitung skor poin: Base 100 + bonus sisa waktu + bonus streak
       const timeBonus = Math.round((timeLeftMs / currentTrial.timeoutMs) * 50);
       const newStreak = streak + 1;
       setStreak(newStreak);
@@ -443,13 +436,12 @@ export const LogicScaleMode: React.FC<LogicScaleModeProps> = ({
       const addedScore = 100 + timeBonus + newStreak * 10;
       setScore((prev) => prev + addedScore);
 
-      // Naik level ke tantangan berikutnya
       const nextLevel = level + 1;
       setLevel(nextLevel);
 
       nextTrialTimeoutRef.current = setTimeout(() => {
         startNewTrial(nextLevel);
-      }, 750);
+      }, 700);
     } else {
       playErrorBuzz();
       setFeedbackState('wrong');
@@ -546,85 +538,83 @@ export const LogicScaleMode: React.FC<LogicScaleModeProps> = ({
         onOpenRecord={() => setIsRecordOpen(true)}
       />
 
-      {/* 2. Main Arena Container */}
-      <main className="flex-1 max-w-4xl mx-auto px-3.5 sm:px-6 py-14 sm:py-18 w-full flex flex-col items-center justify-center">
+      {/* 2. Main Arena Container (Mobile-First, Zero Unwanted Scroll) */}
+      <main className="flex-1 max-w-4xl mx-auto px-3.5 sm:px-6 py-14 sm:py-16 w-full flex flex-col items-center justify-center">
         {/* ========================================================================= */}
-        {/* FASE A: LAYAR PERSIAPAN (IDLE) */}
+        {/* FASE A: LAYAR PERSIAPAN (IDLE) - MOBILE-FIRST & TO THE POINT */}
         {/* ========================================================================= */}
         {gameState === 'idle' && (
-          <div className="w-full max-w-lg mx-auto flex flex-col items-center text-center animate-in fade-in duration-200">
-            {/* Ikon Utama Modul */}
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-3xl bg-blue-50 border border-blue-200/80 flex items-center justify-center text-blue-600 shadow-xs mb-2.5">
-              <Scale className="w-7 h-7 sm:w-8 sm:h-8" />
+          <div className="w-full max-w-sm mx-auto flex flex-col items-center text-center animate-in fade-in duration-200 py-1">
+            {/* Ikon Utama Modul Ringkas */}
+            <div className="w-14 h-14 rounded-3xl bg-blue-50/90 border border-blue-200/80 flex items-center justify-center text-blue-600 shadow-2xs mb-2">
+              <Scale className="w-7 h-7" />
             </div>
 
-            <span className="text-[11px] font-black uppercase tracking-widest text-blue-600 font-mono">
-              LOGIKA & DEDUKSI TRANSITIF
+            <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 font-mono">
+              DEDUKSI LOGIKA MURNI
             </span>
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-0.5 mb-1.5">
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-0.5 mb-1">
               Neraca Relasi Bobot
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed max-w-md mb-5 font-normal">
-              Uji representasi mental hierarki bobot tanpa bias hafalan. Bandingkan kemiringan neraca secara deduktif dan tentukan posisi benda sebelum waktu habis.
+            <p className="text-xs text-slate-500 leading-relaxed max-w-xs mb-3 font-normal">
+              Bandingkan kemiringan neraca secara deduktif untuk menentukan urutan bobot benda tanpa bias hafalan.
             </p>
 
-            {/* Kartu Status Rekor Terbaik & Lencana Tier */}
-            <div className="w-full p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex items-center justify-between mb-5">
-              <div className="flex flex-col text-left">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                  REKOR TERTINGGI
-                </span>
-                <span className="text-lg sm:text-xl font-black text-slate-900 mt-0.5">
-                  {bestRecord ? `Level ${bestRecord}` : 'Belum Ada'}
-                </span>
+            {/* Visual Rule Strip: Inti Mekanik dalam 2 Kolom Bersih */}
+            <div className="w-full rounded-2xl bg-white border border-slate-200/90 shadow-2xs p-2.5 mb-2.5 grid grid-cols-2 divide-x divide-slate-100 text-center">
+              <div className="flex flex-col items-center gap-0.5 px-2">
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[9.5px] font-black uppercase tracking-wide">
+                  <span>▼ Piringan Turun</span>
+                </div>
+                <span className="text-xs font-black text-slate-800 tracking-tight mt-0.5">LEBIH BERAT</span>
+                <span className="text-[9.5px] text-slate-400">Beban ke bawah</span>
               </div>
-              <TierBadge rank={currentBestTier.rank} size="sm" label={currentBestTier.tierName} />
-            </div>
 
-            {/* Rentang Kesulitan & Progresi Level (Sangat Jelas & Terstruktur) */}
-            <div className="w-full mb-5 text-left">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10.5px] font-black uppercase tracking-wider text-slate-400 font-mono">
-                  RENTANG KESULITAN & PROGRESI LEVEL
-                </span>
-                <span className="text-[10.5px] font-bold text-blue-600 flex items-center gap-1">
-                  <Layers className="w-3 h-3" /> 4 Fase Progresif
-                </span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {DIFFICULTY_STAGES_LIST.map((stage, idx) => (
-                  <div
-                    key={idx}
-                    className="p-3 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex flex-col justify-between"
-                  >
-                    <div className="flex items-center justify-between gap-1.5 mb-1">
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${stage.tagColor}`}>
-                        {stage.range} • {stage.title}
-                      </span>
-                      <span className="text-[10px] font-mono font-bold text-slate-500">
-                        ⏱️ {stage.time}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-slate-600 font-normal leading-relaxed">
-                      {stage.desc}
-                    </p>
-                    <div className="flex items-center gap-2 mt-2 pt-1.5 border-t border-slate-100 text-[10px] font-bold text-slate-400">
-                      <span>📦 {stage.shapes}</span>
-                      <span>•</span>
-                      <span>⚖️ {stage.scales}</span>
-                    </div>
-                  </div>
-                ))}
+              <div className="flex flex-col items-center gap-0.5 px-2">
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-[9.5px] font-black uppercase tracking-wide">
+                  <span>▲ Piringan Naik</span>
+                </div>
+                <span className="text-xs font-black text-slate-800 tracking-tight mt-0.5">LEBIH RINGAN</span>
+                <span className="text-[9.5px] text-slate-400">Terangkat ke atas</span>
               </div>
             </div>
 
-            {/* Tombol Mulai Tantangan */}
+            {/* Status Rekor & Link Cepat ke Info Fase */}
+            <div className="w-full p-2.5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2 text-left">
+                <TierBadge rank={currentBestTier.rank} size="sm" label={currentBestTier.tierName} />
+                <div className="flex flex-col">
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400">
+                    REKOR TERTINGGI
+                  </span>
+                  <span className="text-sm font-black text-slate-900 leading-none mt-0.5">
+                    {bestRecord ? `Level ${bestRecord}` : 'Belum Ada'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Tombol Chip Cepat ke Panduan 4 Fase */}
+              <button
+                type="button"
+                onClick={() => {
+                  playTactileClick();
+                  setInfoTab('guide');
+                  setIsInfoOpen(true);
+                }}
+                className="inline-flex items-center gap-1 px-2 py-1 rounded-xl bg-slate-50 hover:bg-blue-50 text-slate-600 hover:text-blue-700 border border-slate-200/70 text-[10px] font-bold transition-all cursor-pointer select-none active:scale-95"
+              >
+                <Layers className="w-3 h-3 text-blue-500" />
+                <span>4 Fase Level ⓘ</span>
+              </button>
+            </div>
+
+            {/* Tombol Mulai Tantangan Langsung Terlihat (Zero Scroll) */}
             <div className="w-full">
               <AppButton
                 label="MULAI TANTANGAN"
                 variant="primary"
                 icon={<Play className="w-4 h-4 fill-white" />}
-                className="w-full py-3.5 text-sm sm:text-base font-bold shadow-md shadow-blue-500/20 bg-blue-600 hover:bg-blue-700"
+                className="w-full py-3.5 text-sm sm:text-base font-bold shadow-md shadow-blue-500/20 bg-blue-600 hover:bg-blue-700 active:scale-95"
                 onClick={() => {
                   playTactileClick();
                   setIsCountdownOpen(true);
@@ -635,39 +625,39 @@ export const LogicScaleMode: React.FC<LogicScaleModeProps> = ({
         )}
 
         {/* ========================================================================= */}
-        {/* FASE B: GAMEPLAY AKTIF (ACTIVE) */}
+        {/* FASE B: GAMEPLAY AKTIF (ACTIVE) - INSTRUMEN PRESISI & RESPONSIF */}
         {/* ========================================================================= */}
         {gameState === 'active' && currentTrial && (
-          <div className="w-full max-w-2xl flex flex-col items-center animate-in fade-in duration-150">
+          <div className="w-full max-w-lg flex flex-col items-center animate-in fade-in duration-150">
             {/* Bar Informasi Atas: Level, Rentang Kesulitan, Lives & Score */}
-            <div className="w-full flex items-center justify-between gap-2 px-1 py-1 mb-2">
+            <div className="w-full flex items-center justify-between gap-1.5 px-0.5 py-0.5 mb-1.5">
               {/* Badge Level & Deskripsi Rentang Kesulitan Aktif */}
-              <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-                <div className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 font-bold text-xs">
-                  <Sparkles className="w-3.5 h-3.5 text-blue-500" />
-                  <span>LEVEL {level}</span>
+              <div className="flex items-center gap-1 min-w-0">
+                <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 font-black text-xs font-mono shrink-0">
+                  <Sparkles className="w-3 h-3 text-blue-500" />
+                  <span>LVL {level}</span>
                 </div>
-                <span className={`text-[10.5px] font-bold px-2 py-0.5 rounded-full border truncate ${currentDifficultyMeta.badgeColor}`}>
-                  {currentDifficultyMeta.stageName} • {currentDifficultyMeta.shapeCount} Benda ({currentDifficultyMeta.timeLimitSec}s)
+                <span className={`text-[9.5px] font-bold px-1.5 py-0.5 rounded-full border truncate font-mono ${currentDifficultyMeta.badgeColor}`}>
+                  {currentDifficultyMeta.stageName} • {currentDifficultyMeta.shapeCount} Benda
                 </span>
               </div>
 
               {/* Runtutan Streak, Skor & Nyawa */}
-              <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+              <div className="flex items-center gap-2 shrink-0">
                 {streak >= 2 && (
-                  <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 font-black text-xs animate-bounce">
-                    <Flame className="w-3 h-3 fill-amber-500 text-amber-500" />
+                  <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 font-black text-[10px] animate-bounce">
+                    <Flame className="w-2.5 h-2.5 fill-amber-500 text-amber-500" />
                     <span>{streak}x</span>
                   </div>
                 )}
-                <span className="font-mono text-xs font-bold text-slate-600">
-                  {score}
+                <span className="font-mono text-xs font-black text-slate-700">
+                  {score}p
                 </span>
                 <div className="flex items-center gap-0.5">
                   {[1, 2, 3].map((heartIndex) => (
                     <Heart
                       key={heartIndex}
-                      className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-all duration-200 ${
+                      className={`w-3.5 h-3.5 transition-all duration-200 ${
                         heartIndex <= lives
                           ? 'fill-rose-500 text-rose-500 scale-100'
                           : 'fill-slate-200 text-slate-300 scale-90'
@@ -679,23 +669,23 @@ export const LogicScaleMode: React.FC<LogicScaleModeProps> = ({
             </div>
 
             {/* Bilah Hitung Mundur Waktu Ronde */}
-            <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden mb-3.5">
+            <div className="w-full h-1.5 bg-slate-200/90 rounded-full overflow-hidden mb-3">
               <div
                 className={`h-full transition-all duration-75 ease-linear rounded-full ${
-                  isTimeCritical ? 'bg-rose-500' : 'bg-blue-500'
+                  isTimeCritical ? 'bg-rose-500 animate-pulse' : 'bg-blue-600'
                 }`}
                 style={{ width: `${timeProgressPercent}%` }}
               />
             </div>
 
             {/* Area Visual Neraca Timbangan Prosedural (SVG Murni, Sempurna di Mobile) */}
-            <div className={`w-full grid gap-2 sm:gap-3 mb-4 ${
-              currentTrial.scales.length === 2 ? 'grid-cols-2 max-w-lg' : 'grid-cols-2 sm:grid-cols-3 max-w-xl'
+            <div className={`w-full grid gap-2 sm:gap-2.5 mb-3 ${
+              currentTrial.scales.length === 2 ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3'
             }`}>
               {currentTrial.scales.map((pair, idx) => (
                 <div
                   key={pair.id}
-                  className={idx === 2 && currentTrial.scales.length === 3 ? 'col-span-2 sm:col-span-1 max-w-[240px] mx-auto w-full' : 'w-full'}
+                  className={idx === 2 && currentTrial.scales.length === 3 ? 'col-span-2 sm:col-span-1 max-w-[210px] mx-auto w-full' : 'w-full'}
                 >
                   <BalanceScaleSVG
                     pair={pair}
@@ -705,60 +695,68 @@ export const LogicScaleMode: React.FC<LogicScaleModeProps> = ({
               ))}
             </div>
 
-            {/* Kartu Pertanyaan Dinamis */}
+            {/* Kartu Pertanyaan Dinamis dengan Penekanan Kata Kunci */}
             <div
-              className={`w-full max-w-lg p-3 rounded-2xl border text-center transition-all duration-200 mb-3.5 ${
+              className={`w-full p-2.5 rounded-2xl border text-center transition-all duration-200 mb-3 ${
                 feedbackState === 'correct'
                   ? 'bg-emerald-50 border-emerald-300 text-emerald-900 ring-2 ring-emerald-400/50'
                   : feedbackState === 'wrong'
                   ? 'bg-rose-50 border-rose-300 text-rose-900 ring-2 ring-rose-400/50 animate-shake'
                   : feedbackState === 'timeout'
                   ? 'bg-amber-50 border-amber-300 text-amber-900 ring-2 ring-amber-400/50'
-                  : 'bg-white border-slate-200/90 text-slate-900 shadow-xs'
+                  : 'bg-white border-slate-200/90 text-slate-900 shadow-2xs'
               }`}
             >
-              <div className="flex items-center justify-center gap-1.5 mb-0.5">
+              <div className="flex items-center justify-center gap-1 mb-0.5">
                 {feedbackState === 'correct' && (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 animate-in zoom-in" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 animate-in zoom-in" />
                 )}
                 {feedbackState === 'wrong' && (
-                  <XCircle className="w-4 h-4 text-rose-600 animate-in zoom-in" />
+                  <XCircle className="w-3.5 h-3.5 text-rose-600 animate-in zoom-in" />
                 )}
                 {feedbackState === 'timeout' && (
-                  <Clock className="w-4 h-4 text-amber-600 animate-in zoom-in" />
+                  <Clock className="w-3.5 h-3.5 text-amber-600 animate-in zoom-in" />
                 )}
-                <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">
+                <span className="text-[9.5px] font-black uppercase tracking-wider text-slate-400 font-mono">
                   {feedbackState === 'correct'
-                    ? 'Benar! Logika Tepat'
+                    ? 'Logika Tepat!'
                     : feedbackState === 'wrong'
                     ? 'Kurang Tepat!'
                     : feedbackState === 'timeout'
                     ? 'Waktu Habis!'
-                    : 'TUGAS INFERENSI DEDUKTIF'}
+                    : 'TUGAS DEDUKSI'}
                 </span>
               </div>
 
-              <h2 className="text-sm sm:text-base font-black tracking-tight">
-                {currentTrial.questionPrompt}
+              <h2 className="text-xs sm:text-sm font-bold text-slate-800 tracking-tight">
+                {currentTrial.questionType === 'heaviest' && (
+                  <>Benda manakah yang <span className="text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded-md font-black">PALING BERAT</span>?</>
+                )}
+                {currentTrial.questionType === 'lightest' && (
+                  <>Benda manakah yang <span className="text-sky-600 bg-sky-50 px-1.5 py-0.5 rounded-md font-black">PALING RINGAN</span>?</>
+                )}
+                {currentTrial.questionType === 'median' && (
+                  <>Benda manakah yang <span className="text-violet-600 bg-violet-50 px-1.5 py-0.5 rounded-md font-black">BERBOBOT SEDANG</span>?</>
+                )}
               </h2>
             </div>
 
-            {/* Pilihan Opsi Jawaban (Simetris: 3 Kolom untuk 3 Objek, 4 Kolom untuk 4 Objek) */}
-            <div className={`w-full max-w-lg grid gap-2 sm:gap-2.5 ${
+            {/* Pilihan Opsi Jawaban (Simetris & Ergonomis di Mobile) */}
+            <div className={`w-full grid gap-2 ${
               currentTrial.options.length === 3 ? 'grid-cols-3' : 'grid-cols-2 sm:grid-cols-4'
             }`}>
               {currentTrial.options.map((shape, idx) => {
                 const isSelected = selectedShapeId === shape.id;
                 const isTarget = currentTrial.correctShape.id === shape.id;
 
-                let buttonStyle = 'bg-white hover:bg-slate-50 border-slate-200/90 text-slate-800';
+                let buttonStyle = 'bg-white hover:bg-slate-50 border-slate-200/90 text-slate-800 shadow-2xs hover:shadow-xs';
                 if (feedbackState !== 'none') {
                   if (isTarget) {
-                    buttonStyle = 'bg-emerald-50 border-emerald-400 text-emerald-800 ring-2 ring-emerald-400/60';
+                    buttonStyle = 'bg-emerald-50 border-emerald-400 text-emerald-800 ring-2 ring-emerald-400/60 shadow-sm';
                   } else if (isSelected) {
-                    buttonStyle = 'bg-rose-50 border-rose-400 text-rose-800 ring-2 ring-rose-400/60';
+                    buttonStyle = 'bg-rose-50 border-rose-400 text-rose-800 ring-2 ring-rose-400/60 shadow-sm';
                   } else {
-                    buttonStyle = 'opacity-40 bg-slate-100 border-slate-200';
+                    buttonStyle = 'opacity-35 bg-slate-100 border-slate-200';
                   }
                 }
 
@@ -771,16 +769,16 @@ export const LogicScaleMode: React.FC<LogicScaleModeProps> = ({
                       playTactileClick();
                       handleSelectAnswer(shape);
                     }}
-                    className={`relative p-2.5 sm:p-3 rounded-2xl border shadow-xs flex flex-col items-center justify-center gap-1.5 transition-all duration-150 cursor-pointer active:scale-95 disabled:pointer-events-none ${buttonStyle}`}
+                    className={`relative p-2 rounded-2xl border flex flex-col items-center justify-center gap-1 transition-all duration-150 cursor-pointer active:scale-95 disabled:pointer-events-none min-h-[58px] sm:min-h-[64px] ${buttonStyle}`}
                   >
                     {/* Shortcut Badge [1..4] */}
-                    <span className="absolute top-1 left-1.5 text-[9px] font-mono font-bold text-slate-400">
+                    <span className="absolute top-1 left-1.5 text-[8.5px] font-mono font-bold text-slate-400">
                       [{idx + 1}]
                     </span>
 
-                    <ShapeCardBadge shape={shape} size="md" />
+                    <ShapeCardBadge shape={shape} size="sm" />
 
-                    <span className="text-[11px] sm:text-xs font-bold truncate max-w-full">
+                    <span className="text-[10.5px] sm:text-xs font-bold truncate max-w-full text-slate-800">
                       {shape.name}
                     </span>
                   </button>
