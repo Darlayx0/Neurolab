@@ -14,12 +14,12 @@ import { TierBadge } from '../common/TierBadge';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 import { playButtonPress } from '../../utils/audio';
 
-export type FilterCategory = 'all' | 'reflex' | 'memory' | 'focus';
+export type FilterCategory = 'all' | 'reflex' | 'memory' | 'focus' | 'logic';
 
 export interface ModeMetaItem {
   id: ReflexMode;
   title: string;
-  category: 'reflex' | 'memory' | 'focus';
+  category: 'reflex' | 'memory' | 'focus' | 'logic';
   categoryTag: string;
   categoryTagColor: string;
   shortDescription: string;
@@ -55,7 +55,7 @@ export const FullRecordsDashboard: React.FC<FullRecordsDashboardProps> = ({
     if (mode === 'nback') return `${Math.round(score)}%`;
     if (mode === 'motor') return `${score} Hits`;
     if (mode === 'digit_span') return `${score} Digit`;
-    if (mode === 'memory' || mode === 'color_memory' || mode === 'tracking' || mode === 'chromatic') return `LVL ${score}`;
+    if (mode === 'memory' || mode === 'color_memory' || mode === 'tracking' || mode === 'chromatic' || mode === 'logic_scale') return `LVL ${score}`;
     if (mode === 'switching' || mode === 'temporal') return `${Math.round(score)} ms`;
     if (mode === 'flanker') return `${Math.round(score)} Poin`;
     return `${score} ${unit}`;
@@ -135,6 +135,20 @@ export const FullRecordsDashboard: React.FC<FullRecordsDashboardProps> = ({
             }`}
           >
             Fokus & Pola (7)
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              playButtonPress();
+              onSelectCategory('logic');
+            }}
+            className={`px-3 py-1 sm:px-3.5 sm:py-1 rounded-full text-xs font-bold transition-all cursor-pointer select-none whitespace-nowrap ${
+              activeCategory === 'logic'
+                ? 'bg-slate-900 text-white shadow-2xs'
+                : 'bg-white/80 hover:bg-slate-100 text-slate-600 border border-slate-200/70'
+            }`}
+          >
+            Logika ({modes.filter((m) => m.category === 'logic').length})
           </button>
         </div>
 

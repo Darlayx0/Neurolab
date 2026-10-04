@@ -24,6 +24,7 @@ import {
   Info,
   Crown,
   Boxes,
+  Scale,
 } from 'lucide-react';
 import {
   ALL_MODE_TIER_STANDARDS,
@@ -284,6 +285,24 @@ const MODE_GUIDES: Record<ReflexMode, GuideContent> = {
       'Bersiaplah menghadapi peningkatan tempo di 10 trial terakhir di mana bilah waktu menyusut sangat cepat.',
     ],
   },
+  logic_scale: {
+    scientificBasis:
+      'Menguji penalaran deduktif dan inferensi transitif (Transitive Inference) yang diatur oleh jaringan dorsolateral prefrontal cortex (DLPFC) dan intraparietal sulcus (IPS). Otak ditantang menyusun representasi hierarki mental A > B > C dari perbandingan neraca terpisah tanpa bias hafalan.',
+    howToPlay: [
+      'Amati 2 hingga 3 neraca timbangan yang membandingkan pasangan benda geometris.',
+      'Sisi piringan yang miring ke bawah menunjukkan benda yang LEBIH BERAT daripada sisi yang terangkat ke atas.',
+      'Baca pertanyaan di layar: tentukan benda mana yang PALING BERAT, PALING RINGAN, atau BERBOBOT SEDANG (di tengah).',
+      'Pilih jawaban yang benar secepat mungkin sebelum bilah waktu ronde habis.',
+      'Kontrol: Sentuh tombol pilihan jawaban di layar atau gunakan tombol angka keyboard (1, 2, 3, 4).',
+    ],
+    penaltyRule:
+      'Sistem 3 Nyawa (Strikes): Anda memiliki 3 kesempatan (nyawa). Jawaban yang salah atau kehabisan waktu ronde akan mengurangi 1 nyawa. Permainan berakhir saat ketiga nyawa habis.',
+    optimalTips: [
+      'Bangun rantai hierarki mental di kepala: jika A > B dan B > C, maka urutannya pasti A > B > C.',
+      'Untuk mencari benda terberat, eliminasi benda mana pun yang pernah berada di posisi terangkat (lebih ringan).',
+      'Untuk mencari benda teringan, eliminasi benda mana pun yang pernah berada di posisi turun (lebih berat).',
+    ],
+  },
 };
 
 const MODE_ICON_MAP: Record<ReflexMode, React.ReactNode> = {
@@ -301,6 +320,7 @@ const MODE_ICON_MAP: Record<ReflexMode, React.ReactNode> = {
   switching: <ArrowLeftRight className="w-5 h-5 text-teal-600" />,
   temporal: <Timer className="w-5 h-5 text-emerald-600" />,
   flanker: <ShieldAlert className="w-5 h-5 text-amber-600" />,
+  logic_scale: <Scale className="w-5 h-5 text-blue-500" />,
 };
 
 export const ModeInfoModal: React.FC<ModeInfoModalProps> = ({

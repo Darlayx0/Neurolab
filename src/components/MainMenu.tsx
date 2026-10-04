@@ -17,6 +17,7 @@ import {
   Trophy,
   ShieldAlert,
   Boxes,
+  Scale,
 } from 'lucide-react';
 import { MODE_SUBMODES_MAP, getBestRecord } from '../utils/storage';
 import { evaluateScoreTier } from '../utils/tierSystem';
@@ -32,12 +33,12 @@ interface MainMenuProps {
   onUpdateRecords?: () => void;
 }
 
-type FilterCategory = 'all' | 'reflex' | 'memory' | 'focus';
+type FilterCategory = 'all' | 'reflex' | 'memory' | 'focus' | 'logic';
 
 interface ModeDefinition {
   id: ReflexMode;
   title: string;
-  category: 'reflex' | 'memory' | 'focus';
+  category: 'reflex' | 'memory' | 'focus' | 'logic';
   categoryTag: string;
   categoryTagColor: string;
   shortDescription: string;
@@ -230,6 +231,18 @@ export const MainMenu: React.FC<MainMenuProps> = ({
       accentHover: 'hover:border-amber-300/80',
       unit: 'Poin',
     },
+    {
+      id: 'logic_scale',
+      title: 'Neraca Relasi Bobot',
+      category: 'logic',
+      categoryTag: 'DEDUKSI',
+      categoryTagColor: 'text-blue-600 bg-blue-50 border-blue-200/80',
+      shortDescription: 'Penalaran deduktif & relasi transitif',
+      icon: <Scale className="w-5 h-5 text-blue-500" />,
+      iconBg: 'bg-blue-50/90 border-blue-100',
+      accentHover: 'hover:border-blue-300/80',
+      unit: 'Level',
+    },
   ];
 
   const filteredModes = modes.filter((m) => {
@@ -242,7 +255,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
     if (mode === 'nback') return `${Math.round(score)}%`;
     if (mode === 'motor') return `${score} Hits`;
     if (mode === 'digit_span') return `${score} Digit`;
-    if (mode === 'memory' || mode === 'color_memory' || mode === 'tracking' || mode === 'chromatic') return `LVL ${score}`;
+    if (mode === 'memory' || mode === 'color_memory' || mode === 'tracking' || mode === 'chromatic' || mode === 'logic_scale') return `LVL ${score}`;
     if (mode === 'switching' || mode === 'temporal') return `${Math.round(score)} ms`;
     if (mode === 'flanker') return `${Math.round(score)} Poin`;
     return `${score} ${unit}`;
@@ -369,7 +382,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                       : 'bg-white/80 hover:bg-slate-100 text-slate-600 border border-slate-200/70'
                   }`}
                 >
-                  Refleks (4)
+                  Refleks ({modes.filter((m) => m.category === 'reflex').length})
                 </button>
                 <button
                   type="button"
@@ -380,7 +393,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                       : 'bg-white/80 hover:bg-slate-100 text-slate-600 border border-slate-200/70'
                   }`}
                 >
-                  Memori (3)
+                  Memori ({modes.filter((m) => m.category === 'memory').length})
                 </button>
                 <button
                   type="button"
@@ -391,13 +404,24 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                       : 'bg-white/80 hover:bg-slate-100 text-slate-600 border border-slate-200/70'
                   }`}
                 >
-                  Fokus & Pola (4)
+                  Fokus ({modes.filter((m) => m.category === 'focus').length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveCategory('logic')}
+                  className={`px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer select-none whitespace-nowrap ${
+                    activeCategory === 'logic'
+                      ? 'bg-slate-900 text-white shadow-xs'
+                      : 'bg-white/80 hover:bg-slate-100 text-slate-600 border border-slate-200/70'
+                  }`}
+                >
+                  Logika ({modes.filter((m) => m.category === 'logic').length})
                 </button>
               </div>
 
               {/* Mode Indicator Tag */}
               <span className="text-[11px] font-bold text-slate-400 uppercase font-mono tracking-wider hidden sm:block shrink-0">
-                11 MODUL AKTIF
+                {modes.length} MODUL AKTIF
               </span>
             </div>
 

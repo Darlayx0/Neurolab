@@ -16,6 +16,7 @@ import { ChromaticAnomalyMode } from './components/modes/ChromaticAnomalyMode';
 import { SwitchingMode } from './components/modes/SwitchingMode';
 import { TemporalMode } from './components/modes/TemporalMode';
 import { FlankerMode } from './components/modes/FlankerMode';
+import { LogicScaleMode } from './components/modes/LogicScaleMode';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<AppView>('menu');
@@ -162,6 +163,14 @@ export default function App() {
       {currentView === 'flanker' && (
         <FlankerMode
           bestRecord={records.flanker}
+          onRecordUpdated={reloadData}
+          onBackToMenu={handleBackToMenu}
+        />
+      )}
+
+      {currentView === 'logic_scale' && (
+        <LogicScaleMode
+          bestRecord={records.logic_scale}
           onRecordUpdated={reloadData}
           onBackToMenu={handleBackToMenu}
         />

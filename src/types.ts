@@ -1,6 +1,6 @@
 import type { ReactNode, MouseEvent } from 'react';
 
-export type ReflexMode = 'visual' | 'audio' | 'memory' | 'color_memory' | 'motor' | 'concentration' | 'digit_span' | 'nback' | 'matrix' | 'tracking' | 'chromatic' | 'switching' | 'temporal' | 'flanker';
+export type ReflexMode = 'visual' | 'audio' | 'memory' | 'color_memory' | 'motor' | 'concentration' | 'digit_span' | 'nback' | 'matrix' | 'tracking' | 'chromatic' | 'switching' | 'temporal' | 'flanker' | 'logic_scale';
 
 export type AppView = 'menu' | ReflexMode;
 
@@ -136,7 +136,52 @@ export interface BestRecords {
   switching: number | null; // min effective switch cost ms
   temporal: number | null; // min mean absolute deviation ms
   flanker: number | null; // max resilience index (0 - 100 points)
+  logic_scale: number | null; // max completed level
   [subModeKey: string]: number | null | undefined;
+}
+
+export type ScaleShapeId = 'circle' | 'square' | 'triangle' | 'diamond' | 'hexagon' | 'star' | 'cylinder';
+
+export interface ScaleShape {
+  id: ScaleShapeId;
+  name: string;
+  colorName: string;
+  bgColor: string;
+  borderColor: string;
+  textColor: string;
+  ringColor: string;
+  weight: number; // 1 to N (higher = heavier)
+}
+
+export interface ScalePair {
+  id: string;
+  leftShape: ScaleShape;
+  rightShape: ScaleShape;
+  tilt: 'left' | 'right' | 'balanced'; // 'left' means left is heavier (downwards on left)
+}
+
+export type ScaleQuestionType = 'heaviest' | 'lightest' | 'median';
+
+export interface ScaleTrialConfig {
+  trialIndex: number;
+  level: number;
+  shapes: ScaleShape[];
+  scales: ScalePair[];
+  questionType: ScaleQuestionType;
+  questionPrompt: string;
+  correctShape: ScaleShape;
+  options: ScaleShape[];
+  timeoutMs: number;
+}
+
+export interface ScaleSessionSummary {
+  completedLevel: number;
+  totalRoundsPlayed: number;
+  correctRounds: number;
+  accuracyRate: number;
+  averageReactionTimeMs: number;
+  bestStreak: number;
+  totalScore: number;
 }
 
 export type FlankerDirection = 'left' | 'right' | 'up' | 'down';
