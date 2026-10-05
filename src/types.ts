@@ -182,8 +182,7 @@ export interface ScaleSessionSummary {
   correctRounds: number;
   accuracyRate: number;
   averageReactionTimeMs: number;
-  bestStreak: number;
-  totalScore: number;
+  failedReason?: 'wrong_answer' | 'timeout';
 }
 
 export type FlankerDirection = 'left' | 'right' | 'up' | 'down';

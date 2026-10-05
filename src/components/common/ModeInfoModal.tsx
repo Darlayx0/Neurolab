@@ -292,12 +292,12 @@ const MODE_GUIDES: Record<ReflexMode, GuideContent> = {
       'Amati 2 hingga 3 neraca timbangan yang membandingkan pasangan benda geometris.',
       'Sisi piringan yang miring ke bawah menunjukkan benda yang LEBIH BERAT daripada sisi yang terangkat ke atas.',
       'Baca pertanyaan di layar: tentukan benda mana yang PALING BERAT, PALING RINGAN, atau BERBOBOT SEDANG (di tengah).',
-      'Rentang Kesulitan Level: Level 1–4 (Dasar: 3 benda, 2 neraca, 12s–10s) ➔ Level 5–8 (Menengah: 3–4 benda, 2–3 neraca, 9s–8s) ➔ Level 9–12 (Mahir: 4 benda, 3 neraca, 7s) ➔ Level 13+ (Master: 4–5 benda, 3–4 neraca, 5s tempo kilat).',
+      'Rentang Kesulitan Level: Level 1–3 (Dasar: 3 benda, 2 neraca, 12s–10s) ➔ Level 4–6 (Menengah: 3–4 benda, 2–3 neraca, 9s–8s) ➔ Level 7–9 (Mahir: 4 benda, 3 neraca, 7s) ➔ Level 10+ (Master & Apex: 4–5 benda, 3–4 neraca, 6s–5s tempo kilat).',
       'Pilih jawaban yang benar secepat mungkin sebelum bilah waktu ronde habis.',
       'Kontrol: Sentuh tombol pilihan jawaban di layar atau gunakan tombol angka keyboard (1, 2, 3, 4).',
     ],
     penaltyRule:
-      'Sistem 3 Nyawa (Strikes): Anda memiliki 3 kesempatan (nyawa). Jawaban yang salah atau kehabisan waktu ronde akan mengurangi 1 nyawa. Permainan berakhir saat ketiga nyawa habis.',
+      'Sudden Death (1 Kesempatan Mutlak): Tidak ada nyawa tambahan atau toleransi kesalahan. Satu jawaban salah atau satu kali kehabisan waktu ronde akan langsung mengakhiri permainan. Penilaian murni berdasarkan level tertinggi yang berhasil diselesaikan.',
     optimalTips: [
       'Bangun rantai hierarki mental di kepala: jika A > B dan B > C, maka urutannya pasti A > B > C.',
       'Untuk mencari benda terberat, eliminasi benda mana pun yang pernah berada di posisi terangkat (lebih ringan).',

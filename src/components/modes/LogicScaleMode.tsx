@@ -22,13 +22,12 @@ import { GameResultView } from '../common/GameResultView';
 import {
   Scale,
   Play,
-  Heart,
-  Flame,
   Clock,
   Sparkles,
   CheckCircle2,
   XCircle,
   Layers,
+  ShieldAlert,
 } from 'lucide-react';
 
 interface LogicScaleModeProps {
@@ -267,12 +266,8 @@ export const LogicScaleMode: React.FC<LogicScaleModeProps> = ({
   const [gameState, setGameState] = useState<LogicScaleGameState>('idle');
   const [isCountdownOpen, setIsCountdownOpen] = useState<boolean>(false);
 
-  // Status Permainan Bertingkat
+  // Status Progresi Level Murni (Sudden Death)
   const [level, setLevel] = useState<number>(1);
-  const [lives, setLives] = useState<number>(3);
-  const [score, setScore] = useState<number>(0);
-  const [streak, setStreak] = useState<number>(0);
-  const [bestStreak, setBestStreak] = useState<number>(0);
 
   // Konfigurasi Trial Aktif
   const [currentTrial, setCurrentTrial] = useState<ScaleTrialConfig | null>(null);
@@ -346,9 +341,9 @@ export const LogicScaleMode: React.FC<LogicScaleModeProps> = ({
   }, []);
 
   /**
-   * Akhiri seluruh sesi permainan (Game Over)
+   * Akhiri seluruh sesi permainan (Sudden Death: 1 Kesalahan / Timeout = Gugur)
    */
-  const handleGameOver = useCallback(() => {
+  const handleGameOver = useCallback((failedReason: 'wrong_answer' | 'timeout') => {
     clearActiveTimers();
     setGameState('completed');
 
@@ -357,16 +352,19 @@ export const LogicScaleMode: React.FC<LogicScaleModeProps> = ({
     const accuracy = totalRounds > 0 ? Math.round((correctCount / totalRounds) * 100) : 0;
     const avgRt = correctCount > 0 ? Math.round(totalReactionTimeMsRef.current / correctCount) : 0;
 
-    const completedLevel = Math.max(1, level);
+    // Level terselesaikan: jika gugur di level L, level yang tuntas adalah L - 1.
+    const completedLevel = Math.max(0, level - 1);
     const saveResult = saveBestRecord('logic_scale', completedLevel);
-    setIsNewBest(saveResult.isNewBest);
+    setIsNewBest(saveResult.isNewBest && completedLevel > 0);
+
+    const reasonText = failedReason === 'timeout' ? 'Kehabisan Waktu' : 'Salah Menjawab';
 
     addHistoryItem({
       mode: 'logic_scale',
       primaryMetric: completedLevel,
       unit: 'Level',
       ratingLabel: `Level ${completedLevel}`,
-      subMetric: `${accuracy}% Akurasi • ${score} Poin`,
+      subMetric: `Gugur di Level ${level} (${reasonText}) • ${accuracy}% Akurasi`,
     });
 
     onRecordUpdated();
@@ -377,13 +375,12 @@ export const LogicScaleMode: React.FC<LogicScaleModeProps> = ({
       correctRounds: correctCount,
       accuracyRate: accuracy,
       averageReactionTimeMs: avgRt,
-      bestStreak,
-      totalScore: score,
+      failedReason,
     });
-  }, [level, score, bestStreak, onRecordUpdated]);
+  }, [level, onRecordUpdated]);
 
   /**
-   * Menangani penalti saat waktu habis (Timeout)
+   * Menangani penalti saat waktu habis (Timeout - Sudden Death)
    */
   const handleTimeout = () => {
     if (isAnswerProcessedRef.current) return;
@@ -393,19 +390,10 @@ export const LogicScaleMode: React.FC<LogicScaleModeProps> = ({
     setFeedbackState('timeout');
     playErrorBuzz();
 
-    setStreak(0);
-    const newLives = lives - 1;
-    setLives(newLives);
-
-    if (newLives <= 0) {
-      nextTrialTimeoutRef.current = setTimeout(() => {
-        handleGameOver();
-      }, 1000);
-    } else {
-      nextTrialTimeoutRef.current = setTimeout(() => {
-        startNewTrial(level);
-      }, 1000);
-    }
+    // Sudden Death: 1x kehabisan waktu = Langsung Gugur
+    nextTrialTimeoutRef.current = setTimeout(() => {
+      handleGameOver('timeout');
+    }, 850);
   };
 
   /**
@@ -428,14 +416,6 @@ export const LogicScaleMode: React.FC<LogicScaleModeProps> = ({
       correctRoundsRef.current += 1;
       totalReactionTimeMsRef.current += rt;
 
-      const timeBonus = Math.round((timeLeftMs / currentTrial.timeoutMs) * 50);
-      const newStreak = streak + 1;
-      setStreak(newStreak);
-      if (newStreak > bestStreak) setBestStreak(newStreak);
-
-      const addedScore = 100 + timeBonus + newStreak * 10;
-      setScore((prev) => prev + addedScore);
-
       const nextLevel = level + 1;
       setLevel(nextLevel);
 
@@ -445,20 +425,11 @@ export const LogicScaleMode: React.FC<LogicScaleModeProps> = ({
     } else {
       playErrorBuzz();
       setFeedbackState('wrong');
-      setStreak(0);
 
-      const newLives = lives - 1;
-      setLives(newLives);
-
-      if (newLives <= 0) {
-        nextTrialTimeoutRef.current = setTimeout(() => {
-          handleGameOver();
-        }, 1000);
-      } else {
-        nextTrialTimeoutRef.current = setTimeout(() => {
-          startNewTrial(level);
-        }, 1000);
-      }
+      // Sudden Death: 1x salah jawab = Langsung Gugur
+      nextTrialTimeoutRef.current = setTimeout(() => {
+        handleGameOver('wrong_answer');
+      }, 850);
     }
   };
 
@@ -488,10 +459,6 @@ export const LogicScaleMode: React.FC<LogicScaleModeProps> = ({
     setIsCountdownOpen(false);
     setGameState('active');
     setLevel(1);
-    setLives(3);
-    setScore(0);
-    setStreak(0);
-    setBestStreak(0);
     totalRoundsRef.current = 0;
     correctRoundsRef.current = 0;
     totalReactionTimeMsRef.current = 0;
@@ -503,9 +470,6 @@ export const LogicScaleMode: React.FC<LogicScaleModeProps> = ({
     setGameState('idle');
     setCurrentTrial(null);
     setLevel(1);
-    setLives(3);
-    setScore(0);
-    setStreak(0);
   };
 
   // Evaluasi Tier untuk Skor Rekor Saat Ini (Terkalibrasi Akurat)
@@ -559,6 +523,12 @@ export const LogicScaleMode: React.FC<LogicScaleModeProps> = ({
             <p className="text-xs text-slate-500 leading-relaxed max-w-xs mb-3 font-normal">
               Bandingkan kemiringan neraca secara deduktif untuk menentukan urutan bobot benda tanpa bias hafalan.
             </p>
+
+            {/* Banner Aturan Sudden Death */}
+            <div className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50/90 border border-rose-200/80 text-rose-700 text-[11px] font-semibold mb-2.5 shadow-2xs">
+              <ShieldAlert className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+              <span>Sudden Death: 1 Kesalahan / Waktu Habis = Gugur</span>
+            </div>
 
             {/* Visual Rule Strip: Inti Mekanik dalam 2 Kolom Bersih */}
             <div className="w-full rounded-2xl bg-white border border-slate-200/90 shadow-2xs p-2.5 mb-2.5 grid grid-cols-2 divide-x divide-slate-100 text-center">
@@ -629,42 +599,25 @@ export const LogicScaleMode: React.FC<LogicScaleModeProps> = ({
         {/* ========================================================================= */}
         {gameState === 'active' && currentTrial && (
           <div className="w-full max-w-lg flex flex-col items-center animate-in fade-in duration-150">
-            {/* Bar Informasi Atas: Level, Rentang Kesulitan, Lives & Score */}
+            {/* Bar Informasi Atas: Level, Rentang Kesulitan, & Indikator Sudden Death */}
             <div className="w-full flex items-center justify-between gap-1.5 px-0.5 py-0.5 mb-1.5">
               {/* Badge Level & Deskripsi Rentang Kesulitan Aktif */}
-              <div className="flex items-center gap-1 min-w-0">
-                <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 font-black text-xs font-mono shrink-0">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <div className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 font-black text-xs font-mono shrink-0">
                   <Sparkles className="w-3 h-3 text-blue-500" />
                   <span>LVL {level}</span>
                 </div>
-                <span className={`text-[9.5px] font-bold px-1.5 py-0.5 rounded-full border truncate font-mono ${currentDifficultyMeta.badgeColor}`}>
-                  {currentDifficultyMeta.stageName} • {currentDifficultyMeta.shapeCount} Benda
+                <span className={`text-[9.5px] font-bold px-2 py-0.5 rounded-full border truncate font-mono ${currentDifficultyMeta.badgeColor}`}>
+                  {currentDifficultyMeta.stageBadge} • {currentDifficultyMeta.shapeCount} Benda
                 </span>
               </div>
 
-              {/* Runtutan Streak, Skor & Nyawa */}
-              <div className="flex items-center gap-2 shrink-0">
-                {streak >= 2 && (
-                  <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 font-black text-[10px] animate-bounce">
-                    <Flame className="w-2.5 h-2.5 fill-amber-500 text-amber-500" />
-                    <span>{streak}x</span>
-                  </div>
-                )}
-                <span className="font-mono text-xs font-black text-slate-700">
-                  {score}p
+              {/* Indikator Mode Sudden Death */}
+              <div className="flex items-center gap-1 shrink-0">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200/90 text-[9.5px] font-bold text-slate-600 font-mono">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 inline-block animate-pulse" />
+                  SUDDEN DEATH
                 </span>
-                <div className="flex items-center gap-0.5">
-                  {[1, 2, 3].map((heartIndex) => (
-                    <Heart
-                      key={heartIndex}
-                      className={`w-3.5 h-3.5 transition-all duration-200 ${
-                        heartIndex <= lives
-                          ? 'fill-rose-500 text-rose-500 scale-100'
-                          : 'fill-slate-200 text-slate-300 scale-90'
-                      }`}
-                    />
-                  ))}
-                </div>
               </div>
             </div>
 
@@ -803,15 +756,15 @@ export const LogicScaleMode: React.FC<LogicScaleModeProps> = ({
             tierDescription={evaluatedTier.desc}
             stats={[
               {
-                id: 'accuracy',
-                label: 'Akurasi Deduksi',
-                value: `${summary.accuracyRate}%`,
+                id: 'completed_level',
+                label: 'Level Terselesaikan',
+                value: `Level ${summary.completedLevel}`,
                 highlight: true,
               },
               {
-                id: 'score',
-                label: 'Total Skor Poin',
-                value: `${summary.totalScore} Poin`,
+                id: 'failed_at',
+                label: 'Gugur Pada',
+                value: `Level ${level} (${summary.failedReason === 'timeout' ? 'Waktu Habis' : 'Salah Jawab'})`,
               },
               {
                 id: 'avg_rt',
@@ -819,9 +772,9 @@ export const LogicScaleMode: React.FC<LogicScaleModeProps> = ({
                 value: `${(summary.averageReactionTimeMs / 1000).toFixed(2)}s`,
               },
               {
-                id: 'streak',
-                label: 'Runtutan Terbaik',
-                value: `${summary.bestStreak}x Benar`,
+                id: 'accuracy',
+                label: 'Akurasi Ronde',
+                value: `${summary.accuracyRate}%`,
               },
             ]}
             onBackToMenu={onBackToMenu}

@@ -92,7 +92,7 @@ export interface LevelDifficultyMeta {
 
 export const DIFFICULTY_STAGES_LIST = [
   {
-    range: 'Level 1 – 4',
+    range: 'Level 1 – 3',
     title: 'Fase Dasar',
     shapes: '3 Benda Geometris',
     scales: '2 Neraca Timbangan',
@@ -101,16 +101,16 @@ export const DIFFICULTY_STAGES_LIST = [
     desc: 'Pengenalan relasi transitif langsung (A > B dan B > C). Menentukan objek paling berat atau paling ringan.',
   },
   {
-    range: 'Level 5 – 8',
+    range: 'Level 4 – 6',
     title: 'Fase Menengah',
     shapes: '3 – 4 Benda',
     scales: '2 – 3 Neraca Timbangan',
     time: '9 – 8 Detik',
     tagColor: 'bg-amber-50 text-amber-700 border-amber-200',
-    desc: 'Pengurangan batas waktu dan introduksi pertanyaan nilai tengah (median) serta 4 objek komparasi.',
+    desc: 'Pengurangan batas waktu, pengenalan pertanyaan median (bobot sedang), serta ekspansi hingga 4 objek komparasi.',
   },
   {
-    range: 'Level 9 – 12',
+    range: 'Level 7 – 9',
     title: 'Fase Mahir',
     shapes: '4 Benda Geometris',
     scales: '3 Neraca Timbangan',
@@ -119,18 +119,18 @@ export const DIFFICULTY_STAGES_LIST = [
     desc: 'Rantai perbandingan multi-tingkat. Posisi neraca dan piringan diacak penuh dan menuntut eliminasi cepat.',
   },
   {
-    range: 'Level 13+',
+    range: 'Level 10+',
     title: 'Fase Master & Apex',
     shapes: '4 – 5 Benda',
     scales: '3 – 4 Neraca Timbangan',
-    time: '5 Detik',
+    time: '6 – 5 Detik',
     tagColor: 'bg-purple-50 text-purple-700 border-purple-200',
-    desc: 'Beban kerja memori kerja maksimum di tempo kilat. Menuntut pemetaan hierarki visual instan.',
+    desc: 'Beban kerja memori kerja maksimum di tempo kilat. Menuntut pemetaan hierarki visual instan tanpa toleransi kesalahan.',
   },
 ];
 
 export function getLevelDifficultyInfo(level: number): LevelDifficultyMeta {
-  if (level <= 4) {
+  if (level <= 3) {
     return {
       stageName: 'Dasar',
       stageBadge: 'Fase 1: Dasar',
@@ -141,18 +141,18 @@ export function getLevelDifficultyInfo(level: number): LevelDifficultyMeta {
       description: '3 Benda • 2 Neraca • Waktu Stabil',
     };
   }
-  if (level <= 8) {
+  if (level <= 6) {
     return {
       stageName: 'Menengah',
       stageBadge: 'Fase 2: Menengah',
       badgeColor: 'text-amber-700 bg-amber-50 border-amber-200/80',
-      shapeCount: level <= 6 ? 3 : 4,
-      scaleCount: level <= 6 ? 2 : 3,
-      timeLimitSec: level <= 6 ? 9 : 8,
+      shapeCount: level <= 4 ? 3 : 4,
+      scaleCount: level <= 4 ? 2 : 3,
+      timeLimitSec: level <= 4 ? 9 : 8,
       description: '3–4 Benda • 2–3 Neraca • Waktu Menyusut',
     };
   }
-  if (level <= 12) {
+  if (level <= 9) {
     return {
       stageName: 'Mahir',
       stageBadge: 'Fase 3: Mahir',
@@ -169,7 +169,7 @@ export function getLevelDifficultyInfo(level: number): LevelDifficultyMeta {
     badgeColor: 'text-purple-700 bg-purple-50 border-purple-200/80',
     shapeCount: 5,
     scaleCount: 4,
-    timeLimitSec: 5,
+    timeLimitSec: level <= 11 ? 6 : 5,
     description: '4–5 Benda • 3–4 Neraca • Tempo Kilat',
   };
 }
@@ -191,11 +191,11 @@ export function shuffleArray<T>(array: T[]): T[] {
  */
 export function calculateTimeoutForLevel(level: number): number {
   if (level <= 2) return 12000;
-  if (level <= 4) return 10000;
-  if (level <= 6) return 9000;
-  if (level <= 8) return 8000;
-  if (level <= 12) return 7000;
-  if (level <= 14) return 6000;
+  if (level <= 3) return 10000;
+  if (level <= 4) return 9000;
+  if (level <= 6) return 8000;
+  if (level <= 9) return 7000;
+  if (level <= 11) return 6000;
   return 5000;
 }
 
@@ -205,9 +205,9 @@ export function calculateTimeoutForLevel(level: number): number {
 export function generateScaleTrial(level: number, trialIndex: number): ScaleTrialConfig {
   // 1. Tentukan jumlah objek berdasarkan level
   let numShapes = 3;
-  if (level >= 7 && level <= 12) {
-    numShapes = 4;
-  } else if (level >= 13) {
+  if (level >= 5 && level <= 9) {
+    numShapes = level <= 6 ? (Math.random() < 0.5 ? 3 : 4) : 4;
+  } else if (level >= 10) {
     numShapes = Math.random() < 0.6 ? 4 : 5;
   }
 
